@@ -1,0 +1,37 @@
+# ── Secrets / config — NEVER commit real keys ──
+config.js
+.env
+.env.local
+*.key
+config.secret.js
+supabase-keys.js
+# NOTE: config.example.js IS committed (it's the safe template)
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Dependencies (if you add a build step later)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Logs
+*.log
+npm-debug.log*
+
+# Build output (future)
+dist/
+build/
+
+# Misc
+*.zip
+*.bak

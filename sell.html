@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>List an Item · Campus Marketplace</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+<script src="config.js" onerror="console.warn('config.js not found — using defaults')"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+:root{
+  --plum:#4a1e6e;--plum-mid:#6b3fa0;--plum-light:#c4a9e0;
+  --plum-wash:#f5f0fb;--plum-rim:#e9dff5;
+  --ink:#1a1228;--muted:#6b6578;--bg:#faf9fd;
+  --green:#16a34a;--red:#dc2626;--amber:#d97706;
+  --radius:12px;--shadow:0 2px 16px rgba(74,30,110,.08);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;}
+h1,h2,h3,.syne{font-family:'Syne',sans-serif;}
+button{font-family:inherit;cursor:pointer;}
+input,select,textarea{font-family:inherit;}
+
+/* NAV */
+.nav{background:linear-gradient(135deg,#fff 0%,#f9f5ff 60%,#f0e8ff 100%);border-bottom:1px solid var(--plum-rim);padding:.75rem 1.25rem;display:flex;align-items:center;gap:1rem;position:sticky;top:0;z-index:50;box-shadow:0 1px 12px rgba(74,30,110,.06);}
+.nav-logo{display:flex;align-items:center;gap:8px;text-decoration:none;}
+.nav-logo img{height:34px;width:auto;}
+.nav-back{display:flex;align-items:center;gap:5px;font-size:.78rem;font-weight:600;color:var(--muted);text-decoration:none;padding:.35rem .75rem;border-radius:7px;border:1px solid var(--plum-rim);transition:all .2s;background:#fff;margin-left:auto;}
+.nav-back:hover{border-color:var(--plum-mid);color:var(--plum);}
+
+/* PAGE */
+.page{max-width:720px;margin:0 auto;padding:2rem 1.25rem 4rem;}
+.page-header{margin-bottom:2rem;}
+.page-header h1{font-size:clamp(1.6rem,4vw,2.2rem);font-weight:800;color:var(--ink);letter-spacing:-.02em;margin-bottom:.35rem;}
+.page-header p{font-size:.88rem;color:var(--muted);font-weight:300;line-height:1.6;}
+
+/* STEPS */
+.steps{display:flex;align-items:center;gap:0;margin-bottom:2rem;}
+.step-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;flex-shrink:0;transition:all .3s;}
+.step-dot.done{background:var(--plum);color:#fff;}
+.step-dot.active{background:linear-gradient(135deg,var(--plum),var(--plum-mid));color:#fff;box-shadow:0 0 0 3px rgba(124,58,237,.15);}
+.step-dot.idle{background:var(--plum-wash);border:1.5px solid var(--plum-rim);color:var(--muted);}
+.step-line{flex:1;height:1.5px;background:var(--plum-rim);transition:background .3s;}
+.step-line.done{background:var(--plum-mid);}
+
+/* CARD */
+.form-card{background:#fff;border:1px solid var(--plum-rim);border-radius:var(--radius);padding:1.5rem;margin-bottom:1.25rem;box-shadow:var(--shadow);}
+.section-title{font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700;color:var(--plum);letter-spacing:.04em;text-transform:uppercase;margin-bottom:1.1rem;display:flex;align-items:center;gap:6px;}
+
+/* FIELDS */
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:.9rem;}
+.field label{font-size:.7rem;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;}
+.field input,.field select,.field textarea{border:1.5px solid var(--plum-rim);border-radius:9px;padding:.62rem .85rem;font-size:.88rem;color:var(--ink);outline:none;transition:border-color .2s,box-shadow .2s;background:#fff;width:100%;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--plum-mid);box-shadow:0 0 0 3px rgba(107,63,160,.09);}
+.field input.err,.field select.err,.field textarea.err{border-color:var(--red);}
+.field textarea{resize:vertical;min-height:90px;}
+.field-hint{font-size:.68rem;color:var(--muted);margin-top:2px;}
+.field-err-msg{font-size:.7rem;color:var(--red);margin-top:2px;display:none;}
+.field-err-msg.show{display:block;}
+.required{color:var(--red);margin-left:2px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;}
+@media(max-width:480px){.g2{grid-template-columns:1fr;}}
+
+/* IMAGE UPLOAD */
+.img-upload-zone{
+  border:2px dashed var(--plum-light);border-radius:var(--radius);
+  padding:2rem 1rem;text-align:center;cursor:pointer;
+  transition:all .2s;background:var(--plum-wash);
+  position:relative;
+}
+.img-upload-zone:hover,.img-upload-zone.dragover{border-color:var(--plum-mid);background:#ede9fe;}
+.img-upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.upload-icon{font-size:2rem;margin-bottom:.5rem;color:var(--plum-mid);}
+.upload-label{font-size:.85rem;font-weight:600;color:var(--plum-mid);}
+.upload-hint{font-size:.7rem;color:var(--muted);margin-top:4px;}
+
+/* Image previews */
+.img-previews{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:.65rem;margin-top:1rem;}
+.img-preview-item{position:relative;aspect-ratio:1;border-radius:9px;overflow:hidden;border:1px solid var(--plum-rim);}
+.img-preview-item img{width:100%;height:100%;object-fit:cover;}
+.img-remove{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;background:rgba(220,38,38,.85);color:#fff;border:none;font-size:.75rem;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s;}
+.img-remove:hover{background:var(--red);}
+.img-primary-badge{position:absolute;bottom:4px;left:4px;background:rgba(74,30,110,.8);color:#fff;font-size:.55rem;font-weight:700;padding:2px 5px;border-radius:4px;letter-spacing:.04em;text-transform:uppercase;}
+.img-count{font-size:.72rem;color:var(--muted);margin-top:.4rem;}
+
+/* TIER NOTICE */
+.tier-notice{display:flex;align-items:flex-start;gap:.75rem;padding:.85rem 1rem;border-radius:10px;background:var(--plum-wash);border:1px solid var(--plum-rim);margin-bottom:1.25rem;font-size:.78rem;color:var(--plum);line-height:1.5;}
+.tier-notice.amber{background:#fffbeb;border-color:#fde68a;color:#92400e;}
+
+/* IMGBB NOTE */
+.imgbb-note{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:9px;padding:.75rem;font-size:.75rem;color:#166534;line-height:1.6;margin-bottom:1rem;}
+
+/* BUTTONS */
+.btn-primary{background:linear-gradient(135deg,var(--plum),var(--plum-mid));color:#fff;border:none;border-radius:10px;padding:.8rem 1.75rem;font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;transition:opacity .2s,box-shadow .2s;cursor:pointer;}
+.btn-primary:hover{opacity:.9;box-shadow:0 6px 20px rgba(74,30,110,.25);}
+.btn-primary:disabled{opacity:.45;cursor:not-allowed;}
+.btn-ghost{background:none;border:1.5px solid var(--plum-rim);border-radius:10px;padding:.78rem 1.5rem;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:500;color:var(--muted);transition:all .2s;}
+.btn-ghost:hover{border-color:var(--plum-mid);color:var(--plum);}
+.btn-row{display:flex;gap:.65rem;justify-content:flex-end;margin-top:1.25rem;flex-wrap:wrap;}
+
+/* PROGRESS BAR */
+.prog-wrap{height:3px;background:var(--plum-rim);border-radius:99px;margin-bottom:1.75rem;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--plum),var(--plum-mid));border-radius:99px;transition:width .4s ease;}
+
+/* SUCCESS SCREEN */
+#successScreen{display:none;text-align:center;padding:3rem 1rem;}
+.success-icon{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--plum),var(--plum-mid));margin:0 auto 1.25rem;display:flex;align-items:center;justify-content:center;}
+.success-icon svg{color:#fff;}
+
+/* CHAR COUNTER */
+.char-count{font-size:.65rem;color:var(--muted);margin-top:2px;text-align:right;}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.25rem;left:50%;transform:translateX(-50%) translateY(80px);background:var(--plum);color:#fff;padding:.65rem 1.25rem;border-radius:10px;font-size:.8rem;font-weight:600;z-index:999;box-shadow:0 8px 24px rgba(74,30,110,.3);transition:transform .35s cubic-bezier(.34,1.4,.64,1);white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* FLASH BANNER */
+.flash{display:none;background:#fef2f2;border:1.5px solid #fca5a5;border-radius:10px;padding:.85rem 1rem;margin-bottom:1.25rem;}
+.flash.show{display:block;animation:flashIn .3s ease;}
+.flash.success{background:#f0fdf4;border-color:#86efac;}
+@keyframes flashIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.flash-head{display:flex;align-items:center;gap:7px;font-size:.82rem;font-weight:700;color:#991b1b;margin-bottom:.4rem;}
+.flash.success .flash-head{color:#166534;}
+.flash ul{margin:0;padding-left:1.4rem;}
+.flash li{font-size:.76rem;color:#991b1b;line-height:1.6;}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="index.html" class="nav-logo">
+    <img src="logo.svg" alt="Campus Marketplace" onerror="this.style.display='none'"/>
+    <span style="font-family:'Syne',sans-serif;font-size:.9rem;font-weight:800;color:var(--plum);">Campus Marketplace</span>
+  </a>
+  <a href="marketplace.html" class="nav-back">
+    <i data-lucide="arrow-left" style="width:13px;height:13px;"></i>
+    Back to Marketplace
+  </a>
+</nav>
+
+<!-- MAIN -->
+<div class="page">
+  <div class="page-header">
+    <h1>List an Item for Sale</h1>
+    <p>Fill in the details below. Your listing will be reviewed by our team and published within 24 hours.</p>
+  </div>
+
+  <!-- ImgBB notice -->
+  <div class="imgbb-note">
+    <strong>📸 Image hosting:</strong> Item photos are uploaded via ImgBB (free image host).
+    <!--
+      TO ENABLE IMAGE UPLOADS:
+      1. Go to imgbb.com → sign up free
+      2. Go to API → copy your API key
+      3. Paste it below where it says: const IMGBB_KEY = 'YOUR_KEY_HERE'
+      Until then, images are stored locally (small files only).
+    -->
+    Add your ImgBB API key in the JS section of this file to enable cloud image hosting.
+  </div>
+
+  <!-- Flash banner -->
+  <div class="flash" id="flashBanner"></div>
+
+  <!-- Progress -->
+  <div class="prog-wrap"><div class="prog-fill" id="progFill" style="width:33%;"></div></div>
+  <div class="steps" id="stepsBar">
+    <div class="step-dot active" id="sd1">1</div>
+    <div class="step-line" id="sl1"></div>
+    <div class="step-dot idle" id="sd2">2</div>
+    <div class="step-line" id="sl2"></div>
+    <div class="step-dot idle" id="sd3">3</div>
+  </div>
+
+  <!-- STEP 1: Item Details -->
+  <div id="step1">
+    <div class="form-card">
+      <div class="section-title">
+        <i data-lucide="package" style="width:15px;height:15px;"></i>
+        Item Details
+      </div>
+
+      <div class="field">
+        <label>Item Title <span class="required">*</span></label>
+        <input id="f-title" type="text" placeholder="e.g. HP Laptop Charger 65W" maxlength="80" oninput="charCount(this,'cc-title',80)"/>
+        <div class="char-count" id="cc-title">0 / 80</div>
+        <div class="field-err-msg" id="e-title">Title is required</div>
+      </div>
+
+      <div class="g2">
+        <div class="field">
+          <label>Price (R) <span class="required">*</span></label>
+          <input id="f-price" type="number" placeholder="280" min="1" max="999999"/>
+          <div class="field-err-msg" id="e-price">Enter a valid price</div>
+        </div>
+        <div class="field">
+          <label>Condition <span class="required">*</span></label>
+          <select id="f-cond">
+            <option value="">Select…</option>
+            <option>New</option>
+            <option>Like New</option>
+            <option>Excellent</option>
+            <option>Good</option>
+            <option>Fair</option>
+          </select>
+          <div class="field-err-msg" id="e-cond">Select a condition</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Category <span class="required">*</span></label>
+        <select id="f-cat">
+          <option value="">Select category…</option>
+          <optgroup label="📚 Books & Education">
+            <option>Textbooks</option><option>Study Notes</option><option>Past Papers</option><option>Private Tutoring</option>
+          </optgroup>
+          <optgroup label="💻 Digital & Electronics">
+            <option>Laptops & Notebooks</option><option>Phones & Accessories</option><option>Tablets</option>
+            <option>Gaming</option><option>Audio & Headphones</option><option>Cameras & Photo</option><option>Other Electronics</option>
+          </optgroup>
+          <optgroup label="🔌 Appliances">
+            <option>Kitchen Appliances</option><option>Room Appliances</option><option>Other Appliances</option>
+          </optgroup>
+          <optgroup label="👗 Apparel & Fashion">
+            <option>Women's Clothing</option><option>Men's Clothing</option><option>Academic Regalia</option>
+            <option>Lab Coats</option><option>Footwear</option><option>Accessories</option>
+          </optgroup>
+          <optgroup label="💄 Beauty & Care">
+            <option>Hair Care</option><option>Skincare</option><option>Makeup</option><option>Fragrance</option>
+          </optgroup>
+          <optgroup label="✏️ Office & Stationery">
+            <option>Calculators</option><option>Stationery</option><option>Bags & Backpacks</option>
+          </optgroup>
+          <optgroup label="🚲 Transport">
+            <option>Bicycles</option><option>Scooters</option><option>Car Accessories</option>
+          </optgroup>
+          <optgroup label="🍔 Food & Drink">
+            <option>Prepared Meals</option><option>Snacks</option><option>Beverages</option>
+          </optgroup>
+          <optgroup label="🛠 Services">
+            <option>Tutoring Services</option><option>Hair & Beauty Services</option>
+            <option>Photography</option><option>Printing & Design</option><option>Other Services</option>
+          </optgroup>
+          <optgroup label="📦 Other">
+            <option>Furniture</option><option>Sports & Fitness</option><option>Miscellaneous</option>
+          </optgroup>
+        </select>
+        <div class="field-err-msg" id="e-cat">Select a category</div>
+      </div>
+
+      <div class="field">
+        <label>Description <span class="required">*</span></label>
+        <textarea id="f-desc" placeholder="Describe the item — its condition, what's included, any defects, why you're selling…" maxlength="600" oninput="charCount(this,'cc-desc',600)"></textarea>
+        <div class="char-count" id="cc-desc">0 / 600</div>
+        <div class="field-err-msg" id="e-desc">Description is required</div>
+      </div>
+
+      <div class="field">
+        <label>Pickup Location</label>
+        <input id="f-loc" type="text" placeholder="e.g. Drostdy Res, Eden Grove, Makhanda CBD"/>
+        <div class="field-hint">Where can the buyer collect the item?</div>
+      </div>
+    </div>
+
+    <!-- Image Upload -->
+    <div class="form-card">
+      <div class="section-title">
+        <i data-lucide="image" style="width:15px;height:15px;"></i>
+        Item Photos <span class="required">*</span>
+        <span style="font-size:.65rem;font-weight:400;text-transform:none;color:var(--muted);margin-left:4px;">(min. 1, max. 5)</span>
+      </div>
+
+      <div class="img-upload-zone" id="uploadZone">
+        <input type="file" id="imgInput" accept="image/jpeg,image/png,image/webp" multiple onchange="handleImageUpload(this)"/>
+        <div class="upload-icon"><i data-lucide="upload-cloud" style="width:2rem;height:2rem;color:var(--plum-mid);"></i></div>
+        <div class="upload-label">Tap to upload photos</div>
+        <div class="upload-hint">JPEG, PNG or WebP · Max 5MB per photo · First photo = main photo</div>
+      </div>
+
+      <div class="img-previews" id="imgPreviews"></div>
+      <div class="img-count" id="imgCount"></div>
+      <div class="field-err-msg show" id="e-images" style="display:none;">Please upload at least 1 photo of the item</div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-primary" onclick="goStep(2)">
+        Continue — Contact Details
+        <i data-lucide="arrow-right" style="width:14px;height:14px;display:inline;margin-left:4px;vertical-align:middle;"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 2: Contact Details -->
+  <div id="step2" style="display:none;">
+    <div class="form-card">
+      <div class="section-title">
+        <i data-lucide="user" style="width:15px;height:15px;"></i>
+        Your Contact Details
+      </div>
+      <p style="font-size:.78rem;color:var(--muted);margin-bottom:1rem;line-height:1.5;">
+        Buyers will contact you directly. Add at least one contact method.
+      </p>
+
+      <div class="g2">
+        <div class="field">
+          <label>Your Name <span class="required">*</span></label>
+          <input id="f-sname" type="text" placeholder="Amahle N."/>
+          <div class="field-err-msg" id="e-sname">Name is required</div>
+        </div>
+        <div class="field">
+          <label>Faculty / Year</label>
+          <input id="f-faculty" type="text" placeholder="e.g. 3rd Year · Law"/>
+          <div class="field-hint">Builds trust with buyers</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>WhatsApp Number <span class="required">*</span></label>
+        <input id="f-wa" type="tel" placeholder="27821234567"/>
+        <div class="field-hint">International format — 27 then number without 0. Buyers get a pre-written message.</div>
+        <div class="field-err-msg" id="e-wa">WhatsApp number is required</div>
+      </div>
+
+      <div class="field">
+        <label>Phone Number</label>
+        <input id="f-phone" type="tel" placeholder="0821234567"/>
+      </div>
+
+      <div class="field">
+        <label>Facebook Profile URL</label>
+        <input id="f-fb" type="url" placeholder="https://facebook.com/yourprofile"/>
+      </div>
+
+      <div class="field">
+        <label>Email Address</label>
+        <input id="f-email" type="email" placeholder="your@email.com"/>
+        <div class="field-hint">Not shown publicly — used for listing updates only</div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-ghost" onclick="goStep(1)">← Back</button>
+      <button class="btn-primary" onclick="goStep(3)">
+        Continue — Review & Submit
+        <i data-lucide="arrow-right" style="width:14px;height:14px;display:inline;margin-left:4px;vertical-align:middle;"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 3: Review & Submit -->
+  <div id="step3" style="display:none;">
+    <div class="form-card" id="reviewCard">
+      <div class="section-title">
+        <i data-lucide="eye" style="width:15px;height:15px;"></i>
+        Review Your Listing
+      </div>
+      <div id="reviewContent"></div>
+    </div>
+
+    <div class="form-card">
+      <div class="section-title">
+        <i data-lucide="shield-check" style="width:15px;height:15px;"></i>
+        Seller Agreement
+      </div>
+      <div style="display:flex;flex-direction:column;gap:.6rem;">
+        <label style="display:flex;align-items:flex-start;gap:8px;font-size:.8rem;color:var(--ink);line-height:1.5;cursor:pointer;">
+          <input type="checkbox" id="ck-accurate" style="margin-top:3px;accent-color:var(--plum);flex-shrink:0;"/>
+          The item and photos I've provided are accurate. I'm not misrepresenting the condition.
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:8px;font-size:.8rem;color:var(--ink);line-height:1.5;cursor:pointer;">
+          <input type="checkbox" id="ck-own" style="margin-top:3px;accent-color:var(--plum);flex-shrink:0;"/>
+          This item is legitimately mine to sell. It is not stolen or counterfeit.
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:8px;font-size:.8rem;color:var(--ink);line-height:1.5;cursor:pointer;">
+          <input type="checkbox" id="ck-terms" style="margin-top:3px;accent-color:var(--plum);flex-shrink:0;"/>
+          I agree to the <a href="#" style="color:var(--plum-mid);">Seller Terms</a> and understand my listing goes live only after admin approval.
+        </label>
+      </div>
+    </div>
+
+    <div class="tier-notice">
+      <i data-lucide="info" style="width:15px;height:15px;flex-shrink:0;margin-top:1px;"></i>
+      <div>
+        <strong>What happens next:</strong> Your listing will be reviewed within 24 hours. 
+        You'll receive an update at the email you provided. 
+        Once approved, buyers can contact you directly — no payment goes through us.
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-ghost" onclick="goStep(2)">← Back</button>
+      <button class="btn-primary" id="submitBtn" onclick="submitListing()">
+        <i data-lucide="send" style="width:14px;height:14px;display:inline;margin-right:5px;vertical-align:middle;"></i>
+        Submit for Approval
+      </button>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div id="successScreen">
+    <div class="success-icon">
+      <i data-lucide="check" style="width:32px;height:32px;"></i>
+    </div>
+    <h2 class="syne" style="font-size:1.5rem;font-weight:800;color:var(--ink);margin-bottom:.5rem;">Listing Submitted!</h2>
+    <p style="font-size:.88rem;color:var(--muted);line-height:1.65;max-width:380px;margin:0 auto 1.5rem;">
+      Your listing is under review. We'll get back to you within 24 hours. 
+      Once approved it goes live on the marketplace.
+    </p>
+    <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;">
+      <a href="marketplace.html" class="btn-primary" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+        <i data-lucide="shopping-bag" style="width:14px;height:14px;"></i>
+        Browse Marketplace
+      </a>
+      <button class="btn-ghost" onclick="resetForm()">List Another Item</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── ImgBB API Key ──────────────────────────────────────────
+   1. Sign up free at imgbb.com
+   2. Go to Account → API → copy key
+   3. Paste it here ↓
+   If empty, images are stored as base64 locally (small files only)
+   ─────────────────────────────────────────────────────── */
+const IMGBB_KEY = (window.CM_CONFIG && window.CM_CONFIG.imgbbKey) || '';  // set in config.js
+
+let uploadedImages = [];   // [{base64, url, name}]
+let currentStep = 1;
+
+/* ── Step navigation ── */
+function goStep(n) {
+  if (n === 2 && !validateStep1()) return;
+  if (n === 3 && !validateStep2()) return;
+  if (n === 3) buildReview();
+
+  [1,2,3].forEach(i => {
+    document.getElementById('step'+i).style.display = i===n ? 'block' : 'none';
+    const dot = document.getElementById('sd'+i);
+    dot.className = 'step-dot ' + (i<n?'done':i===n?'active':'idle');
+    dot.textContent = i<n ? '✓' : i;
+    if(document.getElementById('sl'+i))
+      document.getElementById('sl'+i).className = 'step-line' + (i<n?' done':'');
+  });
+  const pcts = ['33%','66%','100%'];
+  document.getElementById('progFill').style.width = pcts[n-1];
+  currentStep = n;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ── Validation ── */
+function validateStep1() {
+  const missing = [];
+  const checks = [
+    ['f-title','e-title', v => v.trim().length > 0, 'Item title'],
+    ['f-price','e-price', v => parseFloat(v) > 0, 'A valid price'],
+    ['f-cond', 'e-cond',  v => v !== '', 'Condition'],
+    ['f-cat',  'e-cat',   v => v !== '', 'Category'],
+    ['f-desc', 'e-desc',  v => v.trim().length > 10, 'Description (at least 10 characters)'],
+  ];
+  checks.forEach(([fid, eid, test, label]) => {
+    const el = document.getElementById(fid);
+    const err = document.getElementById(eid);
+    const valid = test(el.value);
+    el.classList.toggle('err', !valid);
+    err.classList.toggle('show', !valid);
+    if (!valid) missing.push(label);
+  });
+  /* Images mandatory */
+  const imgErr = document.getElementById('e-images');
+  if (uploadedImages.length === 0) {
+    imgErr.style.display = 'block';
+    missing.push('At least 1 photo of the item');
+  } else {
+    imgErr.style.display = 'none';
+  }
+  if (missing.length) {
+    showFlash('Please complete these before continuing:', missing);
+    return false;
+  }
+  hideFlash();
+  return true;
+}
+
+function validateStep2() {
+  const missing = [];
+  [['f-sname','e-sname', v=>v.trim().length>0, 'Your name'],
+   ['f-wa',   'e-wa',    v=>v.replace(/\D/g,'').length>=10, 'WhatsApp number (at least 10 digits)']
+  ].forEach(([fid,eid,test,label]) => {
+    const el = document.getElementById(fid);
+    const err = document.getElementById(eid);
+    const valid = test(el.value);
+    el.classList.toggle('err', !valid);
+    err.classList.toggle('show', !valid);
+    if(!valid) missing.push(label);
+  });
+  if(missing.length){
+    showFlash('Please complete these before continuing:', missing);
+    return false;
+  }
+  hideFlash();
+  return true;
+}
+
+/* ── Image upload ── */
+async function handleImageUpload(input) {
+  const files = Array.from(input.files);
+  const remaining = 5 - uploadedImages.length;
+  const toUpload = files.slice(0, remaining);
+
+  if (uploadedImages.length >= 5) {
+    toast('Maximum 5 photos allowed');
+    return;
+  }
+
+  for (const file of toUpload) {
+    if (file.size > 5 * 1024 * 1024) {
+      toast(`⚠️ "${file.name}" is over 5MB — skipped`);
+      continue;
+    }
+    const b64 = await fileToBase64(file);
+    let finalUrl = b64; // fallback: use base64 directly
+
+    if (IMGBB_KEY) {
+      /* Upload to ImgBB */
+      try {
+        const form = new FormData();
+        form.append('image', b64.split(',')[1]);
+        const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, {method:'POST',body:form});
+        const data = await res.json();
+        if (data.success) finalUrl = data.data.url;
+      } catch(e) {
+        console.warn('ImgBB upload failed, using base64', e);
+      }
+    }
+
+    uploadedImages.push({ base64: b64, url: finalUrl, name: file.name });
+  }
+
+  renderPreviews();
+  input.value = ''; /* reset so same file can be re-selected */
+}
+
+function fileToBase64(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+function renderPreviews() {
+  const wrap = document.getElementById('imgPreviews');
+  wrap.innerHTML = uploadedImages.map((img, i) => `
+    <div class="img-preview-item">
+      <img src="${img.url}" alt="Photo ${i+1}"/>
+      <button class="img-remove" onclick="removeImage(${i})">✕</button>
+      ${i===0?'<span class="img-primary-badge">Main</span>':''}
+    </div>
+  `).join('');
+  document.getElementById('imgCount').textContent =
+    uploadedImages.length > 0
+      ? `${uploadedImages.length} / 5 photo${uploadedImages.length>1?'s':''} added`
+      : '';
+  document.getElementById('e-images').style.display = uploadedImages.length ? 'none' : 'none';
+}
+
+function removeImage(i) {
+  uploadedImages.splice(i, 1);
+  renderPreviews();
+}
+
+/* ── Drag and drop ── */
+const zone = document.getElementById('uploadZone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+zone.addEventListener('drop', e => {
+  e.preventDefault();
+  zone.classList.remove('dragover');
+  const fakeInput = { files: e.dataTransfer.files };
+  handleImageUpload(fakeInput);
+});
+
+/* ── Review panel ── */
+function buildReview() {
+  const data = collectData();
+  document.getElementById('reviewContent').innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:.5rem;margin-bottom:1rem;">
+      ${uploadedImages.map((img,i)=>`<div style="aspect-ratio:1;border-radius:8px;overflow:hidden;border:1px solid var(--plum-rim);"><img src="${img.url}" style="width:100%;height:100%;object-fit:cover;"/></div>`).join('')}
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:.82rem;">
+      ${[
+        ['Title', data.title],
+        ['Price', 'R'+data.price],
+        ['Category', data.category],
+        ['Condition', data.condition],
+        ['Location', data.location||'—'],
+        ['Seller', data.seller.name],
+        ['WhatsApp', data.seller.whatsapp],
+        ['Phone', data.seller.phone||'—'],
+      ].map(([k,v])=>`
+        <tr style="border-bottom:1px solid var(--plum-rim);">
+          <td style="padding:.5rem .25rem;color:var(--muted);font-weight:600;width:38%;">${k}</td>
+          <td style="padding:.5rem .25rem;color:var(--ink);">${v||'—'}</td>
+        </tr>
+      `).join('')}
+    </table>
+    <p style="font-size:.8rem;color:var(--muted);margin-top:.85rem;line-height:1.6;border-top:1px solid var(--plum-rim);padding-top:.85rem;">${data.desc}</p>
+  `;
+}
+
+/* ── Collect form data ── */
+function collectData() {
+  return {
+    id: 'p' + Date.now().toString(36),
+    title:     document.getElementById('f-title').value.trim(),
+    price:     parseFloat(document.getElementById('f-price').value),
+    category:  document.getElementById('f-cat').value,
+    condition: document.getElementById('f-cond').value,
+    desc:      document.getElementById('f-desc').value.trim(),
+    location:  document.getElementById('f-loc').value.trim(),
+    imageUrl:  uploadedImages[0]?.url || '',
+    allImages: uploadedImages.map(i=>i.url),
+    emoji:     '📦',
+    bg:        '#ede9fe',
+    status:    'pending',
+    boost:     '',
+    dateAdded: new Date().toISOString().split('T')[0],
+    seller: {
+      name:      document.getElementById('f-sname').value.trim(),
+      faculty:   document.getElementById('f-faculty').value.trim(),
+      whatsapp:  document.getElementById('f-wa').value.replace(/\D/g,''),
+      phone:     document.getElementById('f-phone').value.trim(),
+      facebook:  document.getElementById('f-fb').value.trim(),
+      email:     document.getElementById('f-email').value.trim(),
+    },
+  };
+}
+
+/* ── Submit ── */
+function submitListing() {
+  const missing = [];
+  if (!document.getElementById('ck-accurate').checked) missing.push('Confirm the item & photos are accurate');
+  if (!document.getElementById('ck-own').checked)      missing.push('Confirm the item is legitimately yours');
+  if (!document.getElementById('ck-terms').checked)    missing.push('Agree to the Seller Terms');
+  if (missing.length) {
+    showFlash('Please confirm before submitting:', missing);
+    window.scrollTo({top: document.getElementById('flashBanner').offsetTop - 80, behavior:'smooth'});
+    return;
+  }
+  hideFlash();
+
+  const listing = collectData();
+
+  /* ── TODO (backend): POST /api/listings — replace localStorage below ──
+     fetch('/api/listings', {method:'POST', body:JSON.stringify(listing)})
+     ─────────────────────────────────────────────────────────────────── */
+  const existing = JSON.parse(localStorage.getItem('cm_products') || '[]');
+  existing.unshift(listing);
+  localStorage.setItem('cm_products', JSON.stringify(existing));
+
+  /* Hide form, show success */
+  [1,2,3].forEach(i => document.getElementById('step'+i).style.display='none');
+  document.getElementById('stepsBar').style.display='none';
+  document.getElementById('progFill').parentElement.style.display='none';
+  document.getElementById('successScreen').style.display='block';
+}
+
+function resetForm() {
+  location.reload();
+}
+
+/* ── Helpers ── */
+function charCount(el, countId, max) {
+  document.getElementById(countId).textContent = el.value.length + ' / ' + max;
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+function showFlash(title, items) {
+  const f = document.getElementById('flashBanner');
+  f.className = 'flash show';
+  f.innerHTML = `<div class="flash-head"><i data-lucide="alert-circle" style="width:15px;height:15px;"></i> ${title}</div><ul>${items.map(i=>`<li>${i}</li>`).join('')}</ul>`;
+  if (window.lucide) lucide.createIcons();
+  window.scrollTo({top: f.offsetTop - 80, behavior:'smooth'});
+}
+function hideFlash() {
+  document.getElementById('flashBanner').className = 'flash';
+}
+
+/* ── Init Lucide icons ── */
+lucide.createIcons();
+</script>
+</body>
+</html>
