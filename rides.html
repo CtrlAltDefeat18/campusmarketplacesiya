@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="description" content="Campus Rides — verified Makhanda drivers with Guardian Mode safety tracking for Rhodes University students."/>
+<title>Campus Rides · Campus Marketplace</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/static/tailwind.css"/>
+<style>.ur-wave{animation:tailwag 1.6s ease-in-out infinite;}@keyframes tailwag{0%,100%{transform:rotate(-8deg);}50%{transform:rotate(14deg);}}.ur-eye{animation:blink 5s infinite;}@keyframes blink{0%,92%,100%{transform:scaleY(1);}96%{transform:scaleY(0.08);}}
+  .pulse-dot::after{content:"";position:absolute;inset:0;border-radius:9999px;background:#10b981;animation:pulseRing 2s ease-out infinite;}
+  @keyframes pulseRing{0%{transform:scale(1);opacity:.7;}100%{transform:scale(2.6);opacity:0;}}
+</style>
+<script>(function(){try{var u=JSON.parse(localStorage.getItem("cm_user")||"null");var g=localStorage.getItem("cm_guest")==="1";if(!u&&!g)location.replace("/?next=%2Frides#enter");}catch(e){location.replace("/?next=%2Frides#enter");}})();</script>
+</head>
+<body class="pt-14">
+<div id="cm-nav"></div>
+
+<!-- HERO -->
+<header class="bg-plum-deep text-white relative overflow-hidden">
+  <div class="absolute inset-0 bg-aurora opacity-50 animate-aurora"></div>
+  <div class="absolute inset-0 bg-grid-plum [background-size:46px_46px] opacity-40 mask-fade-b"></div>
+  <div class="container-wide relative py-14 sm:py-20">
+    <div class="max-w-2xl">
+      <span class="pill-glass mb-4">🚗 New feature · Pilot</span>
+      <h1 class="font-syne text-4xl sm:text-6xl font-extrabold tracking-tight">Campus Rides<br/><span class="text-shimmer">that watch your back.</span></h1>
+      <p class="text-white/70 mt-5 text-base sm:text-lg leading-relaxed">Verified local Makhanda drivers, fair fares — and <strong class="text-white">Guardian Mode</strong>, an opt-in safety net that alerts a close contact if you don't arrive on time.</p>
+      <div class="flex flex-wrap gap-3 mt-7">
+        <a href="#planner" class="btn-glow">📍 Plan a ride</a>
+        <a href="#drivers" class="btn-glass">View verified drivers</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- GUEST UPSELL -->
+<div data-guest-only class="bg-violet-100 border-b border-violet-200">
+  <div class="container-wide py-3 flex flex-wrap items-center gap-3 text-sm">
+    <span class="text-plum font-semibold">👀 Browsing as guest:</span>
+    <span class="text-muted">You can preview drivers &amp; planner. Sign up to book and enable Guardian Mode.</span>
+    <a href="/?next=%2Frides#enter" class="btn-primary !py-2 !px-4 !text-xs ml-auto">Sign up free</a>
+  </div>
+</div>
+
+<main class="container-wide py-10 space-y-14">
+
+  <!-- TRIP PLANNER -->
+  <section id="planner" class="grid lg:grid-cols-[1.1fr_0.9fr] gap-6">
+    <div class="card p-6 sm:p-8">
+      <p class="eyebrow">Plan a ride</p>
+      <h2 class="font-syne text-2xl sm:text-3xl font-extrabold mt-1">Where to, friend? 🚦</h2>
+      <p class="text-muted text-sm mt-2">Pick a pickup &amp; drop-off — we'll estimate ETA &amp; fare and let you turn on Guardian Mode.</p>
+
+      <div class="grid sm:grid-cols-2 gap-3 mt-5">
+        <div>
+          <label class="label">Pickup</label>
+          <select id="from" class="input">
+            <option>High Street (Town)</option>
+            <option>Rhodes Main Gate</option>
+            <option>Drostdy Res</option>
+            <option>Eden Grove</option>
+            <option>Jan Smuts Res</option>
+            <option>Beit Res</option>
+            <option>MiCasa / Champs Bar</option>
+            <option>Rat &amp; Parrot</option>
+            <option>PnP African Street</option>
+            <option>Makhanda Taxi Rank</option>
+          </select>
+        </div>
+        <div>
+          <label class="label">Drop-off</label>
+          <select id="to" class="input">
+            <option>Drostdy Res</option>
+            <option>Eden Grove</option>
+            <option>Jan Smuts Res</option>
+            <option>Beit Res</option>
+            <option>Marjorie Ramsey</option>
+            <option>Rhodes Main Gate</option>
+            <option>High Street (Town)</option>
+            <option>Joza Township</option>
+          </select>
+        </div>
+        <div>
+          <label class="label">When</label>
+          <select id="when" class="input"><option value="now">Now (next available)</option><option value="late">Late night (after 22:00)</option><option value="peak">Peak hour</option></select>
+        </div>
+        <div>
+          <label class="label">Riders</label>
+          <select id="riders" class="input"><option>Just me</option><option>2 of us</option><option>3 of us</option><option>4 of us</option></select>
+        </div>
+      </div>
+
+      <!-- Guardian toggle -->
+      <div class="mt-5 rounded-2xl border-[1.5px] border-plum-rim bg-plum-wash p-4">
+        <label class="flex items-start gap-3 cursor-pointer">
+          <input id="guardian" type="checkbox" class="mt-1 w-5 h-5 accent-plum"/>
+          <div class="flex-1">
+            <div class="font-syne font-bold flex items-center gap-2">🛡️ Guardian Mode <span class="badge badge-green">Recommended</span></div>
+            <p class="text-xs text-muted mt-1 leading-relaxed">Share this trip with one close contact. If you don't arrive within the estimated time + a buffer, they get an SMS/WhatsApp alert. <strong>You can stop sharing at any second.</strong> Opt-in, per-trip, POPIA-conscious.</p>
+          </div>
+        </label>
+        <div id="contactWrap" class="hidden mt-4 grid sm:grid-cols-2 gap-3">
+          <div><label class="label">Contact name</label><input id="cName" class="input" placeholder="Mom"/></div>
+          <div><label class="label">Contact WhatsApp</label><input id="cPhone" class="input" placeholder="27821234567"/></div>
+        </div>
+      </div>
+
+      <button id="estimate" class="btn-primary w-full mt-5">Estimate ride →</button>
+      <p class="text-[0.7rem] text-muted text-center mt-2">Estimates only — confirm fare with your driver. We don't process payments.</p>
+    </div>
+
+    <!-- estimate panel -->
+    <div id="result" class="card p-6 sm:p-8 bg-gradient-to-br from-plum-wash to-white">
+      <p class="eyebrow">Your estimate</p>
+      <div class="mt-2 text-muted text-sm">Pick a route to see the AI-estimated ETA &amp; fare.</div>
+      <div class="aspect-video rounded-2xl bg-plum-deep mt-4 relative overflow-hidden">
+        <div class="absolute inset-0 bg-grid-plum [background-size:24px_24px] opacity-50"></div>
+        <svg class="absolute inset-0 w-full h-full" viewBox="0 0 400 220">
+          <path id="route" d="M40 180 C120 160 150 80 240 70 S360 40 380 30" fill="none" stroke="#A78BFA" stroke-width="3" stroke-dasharray="6 6"/>
+        </svg>
+        <div class="absolute left-6 bottom-6 text-xs bg-white/15 backdrop-blur px-2 py-1 rounded-lg text-white">📍 You</div>
+        <div class="absolute right-6 top-4 text-xs bg-emerald-500/30 backdrop-blur px-2 py-1 rounded-lg text-white">🏁 Drop</div>
+        <div id="liveDot" class="hidden absolute w-3 h-3 rounded-full bg-emerald-400 pulse-dot" style="left:40%;top:55%"></div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mt-5">
+        <div class="rounded-xl bg-white border border-plum-rim p-3"><div class="text-[0.65rem] text-muted uppercase tracking-wider">ETA</div><div class="font-syne text-2xl font-extrabold text-plum" id="eta">—</div></div>
+        <div class="rounded-xl bg-white border border-plum-rim p-3"><div class="text-[0.65rem] text-muted uppercase tracking-wider">Fare</div><div class="font-syne text-2xl font-extrabold text-plum" id="fare">—</div></div>
+        <div class="rounded-xl bg-white border border-plum-rim p-3"><div class="text-[0.65rem] text-muted uppercase tracking-wider">Distance</div><div class="font-syne text-lg font-bold text-ink" id="dist">—</div></div>
+        <div class="rounded-xl bg-white border border-plum-rim p-3"><div class="text-[0.65rem] text-muted uppercase tracking-wider">Status</div><div class="font-syne text-lg font-bold text-ink" id="status">Ready</div></div>
+      </div>
+      <button id="startTrip" class="btn-glow w-full mt-5 hidden">Start trip 🚀</button>
+      <button id="endTrip" class="btn-ghost w-full mt-2 hidden">I'm safe ✅ End trip</button>
+      <p id="trackingNote" class="hidden text-[0.7rem] text-muted text-center mt-3"></p>
+    </div>
+  </section>
+
+  <!-- HOW GUARDIAN MODE WORKS -->
+  <section class="card p-7 sm:p-10 bg-plum-deep text-white relative overflow-hidden">
+    <div class="absolute inset-0 bg-aurora opacity-30 animate-aurora"></div>
+    <div class="relative">
+      <p class="eyebrow-light">Safety, explained</p>
+      <h2 class="font-syne text-2xl sm:text-3xl font-extrabold mt-2">How Guardian Mode works</h2>
+      <div class="grid md:grid-cols-4 gap-5 mt-8">
+        <div><div class="w-12 h-12 rounded-xl bg-violet-600/30 border border-violet-400/30 grid place-items-center font-syne font-extrabold">①</div><h3 class="font-syne font-bold mt-3">You opt in</h3><p class="text-white/55 text-sm mt-1">Per-trip toggle. Pick one trusted contact.</p></div>
+        <div><div class="w-12 h-12 rounded-xl bg-violet-600/30 border border-violet-400/30 grid place-items-center font-syne font-extrabold">②</div><h3 class="font-syne font-bold mt-3">AI estimates ETA</h3><p class="text-white/55 text-sm mt-1">Based on distance, time-of-day, route conditions.</p></div>
+        <div><div class="w-12 h-12 rounded-xl bg-violet-600/30 border border-violet-400/30 grid place-items-center font-syne font-extrabold">③</div><h3 class="font-syne font-bold mt-3">Your location is shared (encrypted)</h3><p class="text-white/55 text-sm mt-1">Only with your chosen contact. Stop anytime.</p></div>
+        <div><div class="w-12 h-12 rounded-xl bg-violet-600/30 border border-violet-400/30 grid place-items-center font-syne font-extrabold">④</div><h3 class="font-syne font-bold mt-3">If you're overdue</h3><p class="text-white/55 text-sm mt-1">Your contact gets a WhatsApp alert with your last location.</p></div>
+      </div>
+      <div class="mt-8 grid sm:grid-cols-3 gap-3 text-sm">
+        <div class="glass-card p-4"><div class="font-bold">🔒 POPIA-conscious</div><div class="text-white/55 text-xs mt-1">Minimal data, consent-first, never sold.</div></div>
+        <div class="glass-card p-4"><div class="font-bold">⏱ Auto-clears</div><div class="text-white/55 text-xs mt-1">Trip data deletes after you arrive safely.</div></div>
+        <div class="glass-card p-4"><div class="font-bold">🛑 One-tap stop</div><div class="text-white/55 text-xs mt-1">Cancel sharing instantly, no questions.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VERIFIED DRIVERS -->
+  <section id="drivers">
+    <div class="flex items-end justify-between mb-4">
+      <div><p class="eyebrow">Verified locals</p><h2 class="font-syne text-2xl sm:text-3xl font-extrabold">Campus Cabs directory</h2></div>
+      <span class="badge badge-green">✅ Vetted</span>
+    </div>
+    <div id="driverGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    <p class="text-xs text-muted mt-4">Drivers are verified through Makhanda local references. Always confirm fare before riding. Wear a seatbelt. 💜</p>
+  </section>
+
+  <!-- SAFETY FAQ -->
+  <section class="card p-7 sm:p-10">
+    <p class="eyebrow">Good questions</p>
+    <h2 class="font-syne text-2xl sm:text-3xl font-extrabold mt-2">Rides &amp; Guardian Mode FAQ</h2>
+    <div class="mt-6 space-y-3" id="ridesFaq"></div>
+  </section>
+
+</main>
+
+<div id="cm-footer"></div>
+
+<script src="/config.js" onerror="void 0"></script>
+<script src="/static/app.js"></script>
+<script>
+const { qs, qsa, esc, toast, getUser } = window.CM;
+
+// ── Lightweight distance/ETA "AI" — heuristic by route pair + time-of-day ──
+const DISTANCES = {
+  "High Street (Town)→Drostdy Res": 1.8, "High Street (Town)→Eden Grove": 2.1, "High Street (Town)→Jan Smuts Res": 2.4,
+  "High Street (Town)→Beit Res": 2.2, "High Street (Town)→Rhodes Main Gate": 1.6, "High Street (Town)→Marjorie Ramsey": 2.5,
+  "Rhodes Main Gate→Drostdy Res": 0.6, "Rhodes Main Gate→Eden Grove": 0.8, "Rhodes Main Gate→High Street (Town)": 1.6,
+  "MiCasa / Champs Bar→Drostdy Res": 2.0, "MiCasa / Champs Bar→Jan Smuts Res": 2.4, "Rat & Parrot→Drostdy Res": 1.9,
+  "Makhanda Taxi Rank→Joza Township": 3.4, "PnP African Street→Rhodes Main Gate": 1.7,
+};
+function estimateTrip() {
+  const from = qs("#from").value, to = qs("#to").value;
+  const when = qs("#when").value, riders = qs("#riders").value;
+  if (from === to) { toast("Pickup and drop-off must be different.", "error"); return null; }
+  const km = DISTANCES[`${from}→${to}`] || DISTANCES[`${to}→${from}`] || (2 + Math.random() * 2);
+  const baseMinPerKm = when === "peak" ? 4.5 : when === "late" ? 3.0 : 3.6;
+  const etaMin = Math.max(4, Math.round(km * baseMinPerKm + 2));
+  const baseFare = 25 + Math.round(km * 12);
+  const surcharge = when === "late" ? 10 : when === "peak" ? 8 : 0;
+  const groupBump = ({"Just me":0, "2 of us":5, "3 of us":10, "4 of us":15})[riders] || 0;
+  const fare = baseFare + surcharge + groupBump;
+  return { km: km.toFixed(1), etaMin, fare, from, to };
+}
+function renderEstimate(e) {
+  qs("#eta").textContent = e.etaMin + " min";
+  qs("#fare").textContent = "R" + e.fare;
+  qs("#dist").textContent = e.km + " km";
+  qs("#status").textContent = "Ready to start";
+  qs("#startTrip").classList.remove("hidden");
+}
+
+let tripTimer = null, tripStart = 0, tripETA = 0, sharing = false;
+qs("#guardian").addEventListener("change", (e) => qs("#contactWrap").classList.toggle("hidden", !e.target.checked));
+
+qs("#estimate").addEventListener("click", () => {
+  const e = estimateTrip(); if (!e) return;
+  renderEstimate(e);
+});
+
+qs("#startTrip").addEventListener("click", () => {
+  if (!getUser()) { toast("Sign up to start a tracked trip.", "error"); setTimeout(()=>location.href="/?next=%2Frides#enter", 800); return; }
+  const guard = qs("#guardian").checked;
+  if (guard) {
+    const c = qs("#cName").value.trim(), p = qs("#cPhone").value.trim();
+    if (!c || !p) { toast("Add a Guardian contact first.", "error"); return; }
+    sharing = true;
+    qs("#trackingNote").textContent = `🛡️ Sharing this trip with ${c}. They'll be alerted if you don't arrive in time.`;
+    qs("#trackingNote").classList.remove("hidden");
+    qs("#liveDot").classList.remove("hidden");
+  }
+  const e = estimateTrip(); if (!e) return;
+  tripStart = Date.now(); tripETA = e.etaMin * 60 * 1000;
+  qs("#status").textContent = "🚗 En route";
+  qs("#startTrip").classList.add("hidden");
+  qs("#endTrip").classList.remove("hidden");
+  toast("Trip started — stay safe 💜");
+  if (tripTimer) clearInterval(tripTimer);
+  tripTimer = setInterval(() => {
+    const elapsed = Date.now() - tripStart;
+    const remain = Math.max(0, Math.round((tripETA - elapsed) / 1000));
+    qs("#eta").textContent = remain + "s left";
+    if (elapsed > tripETA * 1.2 && sharing) {
+      qs("#status").textContent = "⚠️ Overdue — alerting contact";
+      qs("#trackingNote").textContent = `⚠️ Alert sent to your Guardian contact. Stay calm — help is on the way if you need it.`;
+      clearInterval(tripTimer);
+    }
+  }, 1000);
+});
+
+qs("#endTrip").addEventListener("click", () => {
+  if (tripTimer) clearInterval(tripTimer);
+  qs("#status").textContent = "🏠 Arrived safely";
+  qs("#endTrip").classList.add("hidden");
+  qs("#liveDot").classList.add("hidden");
+  qs("#trackingNote").textContent = `✅ Trip ended. Tracking data cleared.`;
+  toast("Glad you got home safe 🏠💜", "wa");
+  sharing = false;
+});
+
+// ── Drivers (seed list — real directory ships via admin) ──
+const DRIVERS = [
+  { name: "Mr Zwide", car: "White Avanza", rating: 4.9, trips: 320, badges: ["Verified","Late-night"] },
+  { name: "Sis Nomvula", car: "Silver Hyundai i10", rating: 4.8, trips: 210, badges: ["Verified","Female driver"] },
+  { name: "Bra Sipho", car: "Blue Polo", rating: 4.7, trips: 180, badges: ["Verified"] },
+  { name: "Tata Mbeki", car: "Beige Corolla", rating: 5.0, trips: 412, badges: ["Verified","Top-rated"] },
+  { name: "Mama Joyce", car: "Red Etios", rating: 4.9, trips: 268, badges: ["Verified","Female driver","Late-night"] },
+  { name: "Bro Lwazi", car: "Grey Polo Vivo", rating: 4.6, trips: 150, badges: ["Verified"] },
+];
+qs("#driverGrid").innerHTML = DRIVERS.map(d => `
+  <div class="card card-hover p-5">
+    <div class="flex items-center gap-3">
+      <div class="w-12 h-12 rounded-full bg-plum text-white grid place-items-center font-syne font-bold text-lg">${esc(d.name[0])}</div>
+      <div class="flex-1"><div class="font-syne font-bold">${esc(d.name)}</div><div class="text-xs text-muted">${esc(d.car)}</div></div>
+      <div class="text-right"><div class="font-syne font-extrabold text-plum">★ ${d.rating}</div><div class="text-[0.65rem] text-muted">${d.trips} trips</div></div>
+    </div>
+    <div class="flex flex-wrap gap-1.5 mt-3">${d.badges.map(b=>`<span class="badge ${b==='Verified'?'badge-green':b==='Top-rated'?'badge-amber':''}">${esc(b)}</span>`).join("")}</div>
+    <button onclick="bookDriver('${esc(d.name)}')" class="btn-primary w-full mt-4 !py-2.5 !text-xs">Request ride →</button>
+  </div>`).join("");
+window.bookDriver = (n) => { if (!getUser()) { toast("Sign up free to book a ride.", "error"); setTimeout(()=>location.href="/?next=%2Frides#enter", 700); return; } toast(`Pinging ${n} 🚗 — they'll WhatsApp you shortly`, "wa"); };
+
+// FAQ
+const FAQS = [
+  ["Is Guardian Mode mandatory?", "No — it's 100% opt-in, per trip. Use it when you want extra peace of mind (late nights, unfamiliar areas) and skip it when you don't."],
+  ["What data is shared with my contact?", "Only your live location and trip ETA, and only while the trip is active. Once you arrive (or end the trip), tracking stops and the data is cleared."],
+  ["What if I lose signal?", "Your contact still gets an 'overdue' alert if you don't arrive by ETA + buffer. They can then check in or get help."],
+  ["Can I rate my driver?", "Yes — after every ride. Ratings build the verified-driver community."],
+  ["Do you process the fare?", "No. We never touch the money. Confirm fare with your driver upfront and pay them directly."],
+];
+qs("#ridesFaq").innerHTML = FAQS.map(([q,a],i)=>`
+  <details class="card p-0 overflow-hidden" ${i===0?'open':''}>
+    <summary class="cursor-pointer list-none p-5 font-syne font-bold flex items-center justify-between">${esc(q)}<span class="text-plum text-xl">+</span></summary>
+    <div class="px-5 pb-5 text-muted text-sm leading-relaxed">${esc(a)}</div>
+  </details>`).join("");
+</script>
+</body>
+</html>

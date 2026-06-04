@@ -10,39 +10,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/static/tailwind.css"/>
+<script>(function(){try{var u=JSON.parse(localStorage.getItem("cm_user")||"null");var g=localStorage.getItem("cm_guest")==="1";if(!u&&!g)location.replace("/?next=%2Fmarketplace#enter");}catch(e){location.replace("/?next=%2Fmarketplace#enter");}})();</script>
 </head>
 <body class="pt-14">
-
-<!-- NAV -->
-<nav class="nav-shell">
-  <div class="container-cm flex items-center gap-3 h-14">
-    <a href="/" class="flex items-center gap-2 shrink-0">
-      <img src="/favicon.svg" class="h-8 w-8" alt=""/>
-      <span class="font-syne font-extrabold text-white text-sm tracking-tight">Campus<span class="text-violet-300">Marketplace</span></span>
-    </a>
-    <div class="ml-auto hidden md:flex items-center gap-1">
-      <a href="/" data-navlink class="nav-link">Home</a>
-      <a href="/marketplace" data-navlink class="nav-link">Marketplace</a>
-      <a href="/sell" data-navlink class="nav-link">Sell</a>
-      <a href="/news" data-navlink class="nav-link">News</a>
-      <a href="/profile" data-navlink class="nav-link">Profile</a>
-      <a href="/admin" class="nav-link ml-1 bg-violet-600 text-white hover:bg-violet-700 hover:text-white">Admin</a>
-    </div>
-    <button data-burger class="md:hidden ml-auto p-2 text-white/90" aria-label="Menu">
-      <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    </button>
-  </div>
-  <div data-mobilemenu class="hidden md:hidden border-t border-white/10 bg-plum-deep/95">
-    <div class="container-cm py-2 flex flex-col">
-      <a href="/" class="nav-link py-3">🏠 Home</a>
-      <a href="/marketplace" class="nav-link py-3">🛒 Marketplace</a>
-      <a href="/sell" class="nav-link py-3">🏷️ Sell an Item</a>
-      <a href="/news" class="nav-link py-3">📰 News</a>
-      <a href="/profile" class="nav-link py-3">👤 Profile</a>
-      <a href="/admin" class="nav-link py-3">⚙️ Admin</a>
-    </div>
-  </div>
-</nav>
+<div id="cm-nav"></div>
 
 <!-- HEADER -->
 <header class="bg-hero-plum text-white">
@@ -80,18 +51,7 @@
   </div>
 </main>
 
-<!-- FOOTER -->
-<footer class="border-t border-plum-rim bg-white mt-8">
-  <div class="container-cm py-10 text-sm text-muted flex flex-col sm:flex-row gap-4 items-center justify-between">
-    <div>© <span data-year></span> Campus Marketplace · Makhanda 🇿🇦</div>
-    <div class="flex gap-4">
-      <a href="/" class="hover:text-plum">Home</a>
-      <a href="/sell" class="hover:text-plum">Sell</a>
-      <a href="/news" class="hover:text-plum">News</a>
-      <a href="/admin" class="hover:text-plum">Admin</a>
-    </div>
-  </div>
-</footer>
+<div id="cm-footer"></div>
 
 <!-- ITEM SHEET -->
 <div id="sheet" class="fixed inset-0 z-[300] hidden">

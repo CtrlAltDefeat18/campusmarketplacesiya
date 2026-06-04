@@ -11,31 +11,51 @@
   body { @apply font-sans text-ink bg-[#faf9fd] antialiased; }
   h1, h2, h3, h4, .syne { @apply font-syne; }
   ::selection { background: #e9d5ff; color: #4a1e6e; }
-  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar { width: 9px; height: 9px; }
   ::-webkit-scrollbar-thumb { background: #c4a9e0; border-radius: 8px; }
+  ::-webkit-scrollbar-thumb:hover { background: #a78bfa; }
   ::-webkit-scrollbar-track { background: transparent; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
+  }
 }
 
 @layer components {
   /* ── Layout ── */
   .container-cm { @apply max-w-6xl mx-auto px-5; }
-  .section-cm   { @apply py-16 sm:py-20; }
+  .container-wide { @apply max-w-7xl mx-auto px-5; }
+  .section-cm   { @apply py-16 sm:py-24; }
 
   /* ── Buttons ── */
-  .btn         { @apply inline-flex items-center justify-center gap-2 rounded-lg font-syne font-bold text-sm tracking-wide transition-all duration-200 select-none cursor-pointer; }
+  .btn         { @apply inline-flex items-center justify-center gap-2 rounded-xl font-syne font-bold text-sm tracking-wide transition-all duration-200 select-none cursor-pointer; }
   .btn-primary { @apply btn bg-plum text-white px-6 py-3 hover:bg-plum-mid hover:-translate-y-0.5 shadow-plum; }
   .btn-violet  { @apply btn bg-violet-600 text-white px-6 py-3 hover:bg-violet-700 hover:-translate-y-0.5; }
   .btn-ghost   { @apply btn border border-plum-rim text-muted px-6 py-3 bg-white hover:border-plum-mid hover:text-plum; }
+  .btn-glass   { @apply btn px-6 py-3 text-white border border-white/25 bg-white/10 backdrop-blur-md hover:bg-white/20 hover:-translate-y-0.5; }
   .btn-wa      { @apply btn bg-wa text-white px-5 py-3 w-full hover:brightness-95; }
   .btn-call    { @apply btn bg-plum text-white px-5 py-3 w-full hover:bg-plum-mid; }
   .btn-fb      { @apply btn bg-[#1877F2] text-white px-5 py-3 w-full hover:brightness-95; }
 
+  /* The signature "glow" CTA — gradient sweep, lifts toward the cursor */
+  .btn-glow {
+    @apply btn relative overflow-hidden text-white px-7 py-3.5 shadow-glow hover:-translate-y-0.5;
+    background-image: linear-gradient(110deg, #6D28D9, #A78BFA 45%, #ec4899 90%);
+    background-size: 200% auto;
+    transition: background-position .6s ease, transform .2s ease, box-shadow .3s ease;
+  }
+  .btn-glow:hover { background-position: right center; }
+
   /* ── Surfaces ── */
   .card       { @apply bg-white border border-plum-rim rounded-2xl shadow-plum; }
   .card-hover { @apply transition-all duration-300 hover:shadow-plumlg hover:-translate-y-1; }
+  .glass      { @apply border border-white/15 bg-white/10 backdrop-blur-xl; }
+  .glass-card { @apply rounded-3xl border border-white/15 bg-white/[0.07] backdrop-blur-xl shadow-[0_8px_40px_rgba(0,0,0,0.25)]; }
+
+  /* Tilt card — used on the landing for the "everything moves with me" feel */
+  .tilt { transform-style: preserve-3d; transition: transform .25s ease; will-change: transform; }
 
   /* ── Form controls ── */
-  .input { @apply w-full rounded-lg border-[1.5px] border-plum-rim px-3.5 py-2.5 text-sm text-ink bg-white outline-none transition focus:border-plum-mid focus:ring-4 focus:ring-plum/10; }
+  .input { @apply w-full rounded-xl border-[1.5px] border-plum-rim px-3.5 py-2.5 text-sm text-ink bg-white outline-none transition focus:border-plum-mid focus:ring-4 focus:ring-plum/10; }
   .label { @apply block text-[0.7rem] font-semibold uppercase tracking-wider text-muted mb-1; }
 
   /* ── Chips & badges ── */
@@ -45,13 +65,45 @@
   .badge-amber { @apply bg-amber-100 text-amber-800; }
   .badge-green { @apply bg-green-100 text-green-700; }
   .badge-red   { @apply bg-red-100 text-red-700; }
+  .pill-glass  { @apply inline-flex items-center gap-2 text-xs font-semibold text-violet-100 border border-white/20 bg-white/10 backdrop-blur px-3 py-1.5 rounded-full; }
+
+  /* ── Gradient / shimmer text ── */
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(110deg,#6D28D9,#A78BFA 40%,#ec4899 80%);
+  }
+  .text-shimmer {
+    @apply bg-clip-text text-transparent animate-shimmer;
+    background-image: linear-gradient(110deg,#c4a9e0 0%,#fff 25%,#A78BFA 50%,#fff 75%,#c4a9e0 100%);
+    background-size: 200% auto;
+  }
 
   /* ── Nav (dark, glassy — matches landing page) ── */
-  .nav-shell      { @apply fixed top-0 inset-x-0 z-50 bg-plum-deep/95 backdrop-blur-xl border-b border-violet-300/10; }
+  .nav-shell      { @apply fixed top-0 inset-x-0 z-50 bg-plum-deep/80 backdrop-blur-xl border-b border-violet-300/10; }
   .nav-link       { @apply text-white/70 text-[0.8rem] font-medium tracking-wide px-3 py-2 rounded-md transition hover:text-violet-200 hover:bg-violet-300/10; }
   .nav-link-active{ @apply text-violet-200 bg-violet-300/10; }
+
+  /* ── Section eyebrow ── */
+  .eyebrow { @apply text-[0.68rem] tracking-[0.28em] uppercase text-violet-500 font-semibold; }
+  .eyebrow-light { @apply text-[0.68rem] tracking-[0.28em] uppercase text-violet-300 font-medium; }
+
+  /* ── Reveal-on-scroll (toggled by app.js IntersectionObserver) ── */
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity .7s cubic-bezier(.22,1,.36,1), transform .7s cubic-bezier(.22,1,.36,1); }
+  .reveal.in { opacity: 1; transform: none; }
 
   /* ── Hide scrollbar (horizontal chip rows) ── */
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* ── Prose for articles ── */
+  .prose-cm p { @apply mb-3; }
+  .prose-cm a { @apply text-plum font-semibold underline decoration-violet-300 underline-offset-2 hover:text-violet-700; }
+  .prose-cm h2 { @apply font-syne text-xl font-bold mt-5 mb-2 text-ink; }
+  .prose-cm ul { @apply list-disc pl-5 mb-3 space-y-1; }
+}
+
+@layer utilities {
+  .text-glow { text-shadow: 0 0 24px rgba(167,139,250,0.55); }
+  .mask-fade-b { -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent); mask-image: linear-gradient(to bottom, black 70%, transparent); }
+  .perspective { perspective: 1000px; }
 }

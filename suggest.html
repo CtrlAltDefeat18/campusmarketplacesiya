@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="description" content="Make a suggestion — shape the future of Campus Marketplace · Makhanda."/>
+<title>Make a Suggestion · Campus Marketplace</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/static/tailwind.css"/>
+<style>.ur-wave{animation:tailwag 1.6s ease-in-out infinite;}@keyframes tailwag{0%,100%{transform:rotate(-8deg);}50%{transform:rotate(14deg);}}.ur-eye{animation:blink 5s infinite;}@keyframes blink{0%,92%,100%{transform:scaleY(1);}96%{transform:scaleY(0.08);}}</style>
+<script>(function(){try{var u=JSON.parse(localStorage.getItem("cm_user")||"null");var g=localStorage.getItem("cm_guest")==="1";if(!u&&!g)location.replace("/?next=%2Fsuggest#enter");}catch(e){location.replace("/?next=%2Fsuggest#enter");}})();</script>
+</head>
+<body class="pt-14">
+<div id="cm-nav"></div>
+
+<header class="bg-hero-plum text-white relative overflow-hidden">
+  <div class="absolute inset-0 bg-aurora opacity-40 animate-aurora"></div>
+  <div class="container-wide relative py-12 sm:py-16 flex items-center gap-6">
+    <img src="/uncle-ross.svg" class="w-24 hidden sm:block ur animate-floaty" alt=""/>
+    <div>
+      <span class="pill-glass mb-3">💡 Build with us</span>
+      <h1 class="font-syne text-4xl sm:text-5xl font-extrabold">Got an idea?</h1>
+      <p class="text-white/70 mt-3 max-w-xl">Tell us in 30 seconds. Every suggestion is read by the founder &amp; the dev team. The best ones make it to the roadmap. Uncle Ross is taking notes 📝</p>
+    </div>
+  </div>
+</header>
+
+<main class="container-wide py-10 grid lg:grid-cols-[1.1fr_0.9fr] gap-8">
+
+  <!-- form -->
+  <section class="card p-6 sm:p-8">
+    <h2 class="font-syne text-2xl font-extrabold">Share your suggestion</h2>
+    <form id="form" class="mt-5 space-y-4">
+      <div>
+        <label class="label">What type of feedback?</label>
+        <div id="kindChips" class="flex flex-wrap gap-2">
+          <button type="button" data-kind="✨ Feature" class="chip chip-active">✨ Feature</button>
+          <button type="button" data-kind="🐛 Bug" class="chip">🐛 Bug</button>
+          <button type="button" data-kind="🎨 Design" class="chip">🎨 Design</button>
+          <button type="button" data-kind="📚 Content" class="chip">📚 Content</button>
+          <button type="button" data-kind="💬 Other" class="chip">💬 Other</button>
+        </div>
+      </div>
+      <div>
+        <label class="label">Title</label>
+        <input id="title" class="input" placeholder="e.g. Add a study-group chat" required maxlength="120"/>
+      </div>
+      <div>
+        <label class="label">Tell us more</label>
+        <textarea id="body" class="input min-h-[120px]" placeholder="What problem does it solve? Who'd use it? Any examples?" maxlength="1200" required></textarea>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-3">
+        <div><label class="label">Your name <span class="normal-case text-muted/70">(optional)</span></label><input id="name" class="input" placeholder="Auto-filled if signed in"/></div>
+        <div><label class="label">Email <span class="normal-case text-muted/70">(optional)</span></label><input id="email" type="email" class="input" placeholder="So we can reply"/></div>
+      </div>
+      <label class="flex items-center gap-2 text-sm text-muted">
+        <input id="dev" type="checkbox" class="w-4 h-4 accent-plum"/>
+        I'm a developer / would like to contribute
+      </label>
+      <button class="btn-primary w-full !py-3">Send suggestion 🚀</button>
+    </form>
+    <p class="text-xs text-muted mt-3 text-center">Your feedback is logged privately — you'll get a thank-you toast when it lands.</p>
+  </section>
+
+  <!-- public board -->
+  <section>
+    <h2 class="font-syne text-2xl font-extrabold mb-4">What students are asking for</h2>
+    <div id="board" class="space-y-3"></div>
+    <p class="text-xs text-muted mt-4">A friendly board — moderated by Uncle Ross 🐭. Names hidden by default.</p>
+  </section>
+
+</main>
+
+<div id="cm-footer"></div>
+
+<script src="/config.js" onerror="void 0"></script>
+<script src="/static/app.js"></script>
+<script>
+const { api, qs, qsa, esc, toast, getUser } = window.CM;
+
+let kind = "✨ Feature";
+qsa("#kindChips button").forEach(b => b.addEventListener("click", () => {
+  qsa("#kindChips button").forEach(x => x.classList.remove("chip-active"));
+  b.classList.add("chip-active"); kind = b.dataset.kind;
+}));
+
+const u = getUser();
+if (u) { qs("#name").value = u.name || ""; qs("#email").value = u.email || ""; }
+
+qs("#form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const payload = {
+    kind, title: qs("#title").value.trim(), body: qs("#body").value.trim(),
+    name: qs("#name").value.trim(), email: qs("#email").value.trim(),
+    developer: qs("#dev").checked,
+  };
+  if (!payload.title || !payload.body) { toast("Title and details are required.", "error"); return; }
+  try {
+    await api.suggest(payload);
+    toast("Thanks! Uncle Ross filed your idea 🐭✨", "wa");
+    qs("#form").reset();
+    if (u) { qs("#name").value = u.name || ""; qs("#email").value = u.email || ""; }
+    load();
+  } catch (err) { toast("Couldn't send — try again.", "error"); }
+});
+
+function row(s) {
+  const initials = (s.name || "?").slice(0, 1).toUpperCase();
+  return `<div class="card p-4 flex gap-3">
+    <div class="w-9 h-9 rounded-full bg-plum text-white grid place-items-center font-syne font-bold shrink-0">${esc(initials)}</div>
+    <div class="flex-1 min-w-0">
+      <div class="flex items-center gap-2 flex-wrap"><span class="badge">${esc(s.kind || "💬 Other")}</span>${s.developer?`<span class="badge badge-amber">⌨️ Dev</span>`:""}<span class="text-xs text-muted ml-auto">${esc(s.date || "")}</span></div>
+      <div class="font-syne font-bold mt-1 truncate">${esc(s.title)}</div>
+      <p class="text-sm text-muted mt-1 line-clamp-3">${esc(s.body)}</p>
+    </div>
+  </div>`;
+}
+async function load() {
+  qs("#board").innerHTML = `<div class="card p-4 animate-pulse h-16"></div>`.repeat(3);
+  try {
+    const list = await api.suggestions();
+    qs("#board").innerHTML = list.length ? list.slice(0,12).map(row).join("")
+      : `<div class="card p-8 text-center text-muted"><div class="text-4xl mb-2">📝</div>Be the first to suggest something!</div>`;
+  } catch (_) { qs("#board").innerHTML = `<div class="card p-6 text-center text-muted">Couldn't load board.</div>`; }
+}
+load();
+</script>
+</body>
+</html>

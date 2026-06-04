@@ -85,6 +85,11 @@ def init_db():
             data       TEXT NOT NULL,
             created_at TEXT NOT NULL
         );
+        CREATE TABLE IF NOT EXISTS suggestions (
+            id         TEXT PRIMARY KEY,
+            data       TEXT NOT NULL,
+            created_at TEXT NOT NULL
+        );
         """
     )
     con.commit()
@@ -271,6 +276,43 @@ def api_create_news():
     )
     db.commit()
     return jsonify(ok=True, id=nid), 201
+
+
+# ── API: suggestions ────────────────────────────────────────────────────────
+@app.get("/api/suggestions")
+def api_suggestions():
+    db = get_db()
+    rows = db.execute(
+        "SELECT * FROM suggestions ORDER BY created_at DESC LIMIT 50"
+    ).fetchall()
+    return jsonify([json.loads(r["data"]) for r in rows])
+
+
+@app.post("/api/suggestions")
+def api_create_suggestion():
+    body = request.get_json(silent=True) or {}
+    title = (body.get("title") or "").strip()
+    text = (body.get("body") or "").strip()
+    if not title or not text:
+        return jsonify(ok=False, error="Title and body required"), 400
+    sid = "s" + format(int(time.time() * 1000), "x")
+    item = {
+        "id": sid,
+        "kind": (body.get("kind") or "💬 Other").strip()[:40],
+        "title": title[:120],
+        "body": text[:1200],
+        "name": (body.get("name") or "").strip()[:80] or "Anonymous student",
+        "email": (body.get("email") or "").strip()[:120],
+        "developer": bool(body.get("developer")),
+        "date": datetime.now().strftime("%b %d, %Y"),
+    }
+    db = get_db()
+    db.execute(
+        "INSERT INTO suggestions (id, data, created_at) VALUES (?,?,?)",
+        (sid, json.dumps(item), now_iso()),
+    )
+    db.commit()
+    return jsonify(ok=True, id=sid), 201
 
 
 # ── API: admin login ────────────────────────────────────────────────────────

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="description" content="Your Campus Marketplace home — marketplace, rides, news and opportunities, all in one place."/>
+<title>Home · Campus Marketplace</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/static/tailwind.css"/>
+<style>.ur-wave{animation:tailwag 1.6s ease-in-out infinite;}@keyframes tailwag{0%,100%{transform:rotate(-8deg);}50%{transform:rotate(14deg);}}.ur-eye{animation:blink 5s infinite;}@keyframes blink{0%,92%,100%{transform:scaleY(1);}96%{transform:scaleY(0.08);}}</style>
+<script>
+  // Gate the page before paint — bounce visitors with no session/guest flag.
+  (function () {
+    try {
+      var u = JSON.parse(localStorage.getItem("cm_user") || "null");
+      var g = localStorage.getItem("cm_guest") === "1";
+      if (!u && !g) location.replace("/?next=%2Fhome#enter");
+    } catch (e) { location.replace("/?next=%2Fhome#enter"); }
+  })();
+</script>
+</head>
+<body class="pt-14">
+<div id="cm-nav"></div>
+
+<!-- HERO GREETING -->
+<header class="bg-hero-plum text-white relative overflow-hidden">
+  <div class="absolute inset-0 bg-aurora opacity-40 animate-aurora"></div>
+  <div class="container-wide relative py-10 sm:py-14 flex items-center gap-6">
+    <img src="/uncle-ross.svg" alt="Uncle Ross" class="w-24 sm:w-28 shrink-0 animate-floaty hidden sm:block"/>
+    <div>
+      <p class="eyebrow-light">Welcome back</p>
+      <h1 class="font-syne text-3xl sm:text-5xl font-extrabold tracking-tight mt-1">Hey <span data-auth-name class="text-violet-300">there</span> 👋</h1>
+      <p class="text-white/60 mt-2 max-w-xl text-sm sm:text-base">Here's your campus at a glance — buy, sell, ride home safe, and never miss an opportunity.</p>
+    </div>
+  </div>
+</header>
+
+<!-- GUEST UPSELL -->
+<div data-guest-only class="bg-violet-100 border-b border-violet-200">
+  <div class="container-wide py-3 flex flex-wrap items-center gap-3 text-sm">
+    <span class="text-plum font-semibold">👀 You're browsing as a guest.</span>
+    <span class="text-muted">Sign up free to message sellers, list items, book rides &amp; turn on Guardian Mode.</span>
+    <a href="/?next=%2Fhome#enter" class="btn-primary !py-2 !px-4 !text-xs ml-auto">Create free account</a>
+  </div>
+</div>
+
+<main class="container-wide py-8">
+  <!-- QUICK ACTIONS -->
+  <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <a href="/marketplace" class="card card-hover p-5 group">
+      <div class="text-3xl group-hover:scale-110 transition">🛒</div>
+      <div class="font-syne font-bold mt-2">Marketplace</div>
+      <div class="text-xs text-muted mt-0.5">Browse &amp; buy</div>
+    </a>
+    <a href="/rides" class="card card-hover p-5 group">
+      <div class="text-3xl group-hover:scale-110 transition">🚗</div>
+      <div class="font-syne font-bold mt-2">Campus Rides</div>
+      <div class="text-xs text-muted mt-0.5">Get home safe</div>
+    </a>
+    <a href="/sell" class="card card-hover p-5 group">
+      <div class="text-3xl group-hover:scale-110 transition">🏷️</div>
+      <div class="font-syne font-bold mt-2">Sell an item</div>
+      <div class="text-xs text-muted mt-0.5">List in minutes</div>
+    </a>
+    <a href="/news" class="card card-hover p-5 group">
+      <div class="text-3xl group-hover:scale-110 transition">📰</div>
+      <div class="font-syne font-bold mt-2">News &amp; bursaries</div>
+      <div class="text-xs text-muted mt-0.5">Opportunities</div>
+    </a>
+  </section>
+
+  <!-- STATS STRIP -->
+  <section class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
+    <div class="card p-4 text-center"><div class="font-syne text-2xl font-extrabold text-plum"><span data-countup="0" id="sListings">0</span>+</div><div class="text-[0.65rem] uppercase tracking-wider text-muted mt-1">Live listings</div></div>
+    <div class="card p-4 text-center"><div class="font-syne text-2xl font-extrabold text-plum"><span data-countup="0" id="sSellers">0</span></div><div class="text-[0.65rem] uppercase tracking-wider text-muted mt-1">Sellers</div></div>
+    <div class="card p-4 text-center"><div class="font-syne text-2xl font-extrabold text-plum">12</div><div class="text-[0.65rem] uppercase tracking-wider text-muted mt-1">Verified drivers</div></div>
+    <div class="card p-4 text-center"><div class="font-syne text-2xl font-extrabold text-plum">🇿🇦</div><div class="text-[0.65rem] uppercase tracking-wider text-muted mt-1">Makhanda, EC</div></div>
+  </section>
+
+  <!-- MARKETPLACE PREVIEW -->
+  <section class="mt-10">
+    <div class="flex items-end justify-between mb-4">
+      <div>
+        <p class="eyebrow">Fresh on campus</p>
+        <h2 class="font-syne text-2xl font-extrabold">Latest listings</h2>
+      </div>
+      <a href="/marketplace" class="text-plum font-semibold text-sm hover:underline">See all →</a>
+    </div>
+    <div id="mktGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4"></div>
+  </section>
+
+  <!-- RIDE + SUGGEST -->
+  <section class="grid lg:grid-cols-3 gap-4 mt-10">
+    <div class="card p-6 lg:col-span-2 bg-gradient-to-br from-plum-wash to-white">
+      <div class="flex items-start gap-4">
+        <div class="text-4xl">🛡️</div>
+        <div>
+          <h3 class="font-syne text-xl font-bold">Heading out tonight?</h3>
+          <p class="text-muted text-sm mt-1">Book a verified Campus Ride and turn on Guardian Mode — a close contact gets alerted if you don't arrive on time.</p>
+          <a href="/rides" class="btn-primary mt-4 !py-2.5">Open Campus Rides</a>
+        </div>
+      </div>
+    </div>
+    <div class="card p-6 flex flex-col">
+      <div class="text-3xl">💡</div>
+      <h3 class="font-syne text-lg font-bold mt-2">Got an idea?</h3>
+      <p class="text-muted text-sm mt-1 flex-1">Tell us what to build next — it takes 30 seconds.</p>
+      <a href="/suggest" class="btn-ghost mt-3 !py-2.5">Make a suggestion</a>
+    </div>
+  </section>
+
+  <!-- NEWS PREVIEW -->
+  <section class="mt-10">
+    <div class="flex items-end justify-between mb-4">
+      <div>
+        <p class="eyebrow">Don't miss out</p>
+        <h2 class="font-syne text-2xl font-extrabold">News &amp; opportunities</h2>
+      </div>
+      <a href="/news" class="text-plum font-semibold text-sm hover:underline">All news →</a>
+    </div>
+    <div id="newsGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+  </section>
+</main>
+
+<div id="cm-footer"></div>
+
+<script src="/config.js" onerror="void 0"></script>
+<script src="/static/app.js"></script>
+<script>
+const { api, esc, money, qs } = window.CM;
+
+function pcard(p) {
+  return `<a href="/marketplace" class="card card-hover overflow-hidden block">
+    <div class="relative aspect-square flex items-center justify-center text-5xl" style="background:${esc(p.bg)||'#f5f0fb'}">
+      ${p.imageUrl ? `<img src="${esc(p.imageUrl)}" alt="${esc(p.title)}" class="absolute inset-0 w-full h-full object-cover"/>` : `<span>${esc(p.emoji||'📦')}</span>`}
+      <span class="badge absolute top-2 left-2 bg-white/90 backdrop-blur">${esc(p.category)}</span>
+    </div>
+    <div class="p-3">
+      <div class="font-semibold text-sm leading-snug line-clamp-2 min-h-[2.5em]">${esc(p.title)}</div>
+      <div class="font-syne font-extrabold text-plum mt-1">${money(p.price)}</div>
+    </div></a>`;
+}
+function ncard(n) {
+  return `<a href="/news" class="card card-hover overflow-hidden block">
+    <div class="aspect-video bg-plum-wash flex items-center justify-center text-5xl">${n.imageUrl?`<img src="${esc(n.imageUrl)}" class="w-full h-full object-cover" alt=""/>`:`<span>${esc(n.emoji||'📰')}</span>`}</div>
+    <div class="p-4"><span class="badge mb-2">${esc(n.tag||'News')}</span>
+      <h3 class="font-syne font-bold leading-snug">${esc(n.title)}</h3>
+      <p class="text-sm text-muted mt-1 line-clamp-2">${esc(n.excerpt||'')}</p></div></a>`;
+}
+
+(async function init() {
+  qs("#mktGrid").innerHTML = Array.from({length:4}).map(()=>`<div class="card animate-pulse h-56"></div>`).join("");
+  qs("#newsGrid").innerHTML = Array.from({length:3}).map(()=>`<div class="card animate-pulse h-48"></div>`).join("");
+  try {
+    const [items, news, stats] = await Promise.all([api.listings("approved"), api.news(), api.stats().catch(()=>({}))]);
+    qs("#mktGrid").innerHTML = items.slice(0,8).map(pcard).join("") || `<p class="col-span-full text-muted text-sm py-10 text-center">No listings yet — be the first to <a href="/sell" class="text-plum font-semibold">sell something</a>!</p>`;
+    qs("#newsGrid").innerHTML = news.slice(0,3).map(ncard).join("") || `<p class="col-span-full text-muted text-sm py-10 text-center">No news yet.</p>`;
+    if (stats.listings != null) { const a=qs("#sListings"); a.dataset.countup=stats.listings; window.CM.countUp(a, stats.listings); }
+    if (stats.sellers != null) { const b=qs("#sSellers"); b.dataset.countup=stats.sellers; window.CM.countUp(b, stats.sellers); }
+  } catch (e) {
+    qs("#mktGrid").innerHTML = `<p class="col-span-full text-muted text-sm py-10 text-center">Couldn't load listings.</p>`;
+    qs("#newsGrid").innerHTML = "";
+  }
+})();
+</script>
+</body>
+</html>

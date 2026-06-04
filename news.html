@@ -3,76 +3,58 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<meta name="description" content="Makhanda Happening — campus news, events, specials and notices for Rhodes University students."/>
-<title>News · Campus Marketplace</title>
+<meta name="description" content="Makhanda Happening — campus news, bursaries, student opportunities, academic events across South Africa and notices for Rhodes University students."/>
+<title>News &amp; Opportunities · Campus Marketplace</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/static/tailwind.css"/>
+<style>.ur-wave{animation:tailwag 1.6s ease-in-out infinite;}@keyframes tailwag{0%,100%{transform:rotate(-8deg);}50%{transform:rotate(14deg);}}.ur-eye{animation:blink 5s infinite;}@keyframes blink{0%,92%,100%{transform:scaleY(1);}96%{transform:scaleY(0.08);}}</style>
+<script>(function(){try{var u=JSON.parse(localStorage.getItem("cm_user")||"null");var g=localStorage.getItem("cm_guest")==="1";if(!u&&!g)location.replace("/?next=%2Fnews#enter");}catch(e){location.replace("/?next=%2Fnews#enter");}})();</script>
 </head>
 <body class="pt-14">
+<div id="cm-nav"></div>
 
-<!-- NAV -->
-<nav class="nav-shell">
-  <div class="container-cm flex items-center gap-3 h-14">
-    <a href="/" class="flex items-center gap-2 shrink-0">
-      <img src="/favicon.svg" class="h-8 w-8" alt=""/>
-      <span class="font-syne font-extrabold text-white text-sm tracking-tight">Campus<span class="text-violet-300">Marketplace</span></span>
-    </a>
-    <div class="ml-auto hidden md:flex items-center gap-1">
-      <a href="/" data-navlink class="nav-link">Home</a>
-      <a href="/marketplace" data-navlink class="nav-link">Marketplace</a>
-      <a href="/sell" data-navlink class="nav-link">Sell</a>
-      <a href="/news" data-navlink class="nav-link">News</a>
-      <a href="/profile" data-navlink class="nav-link">Profile</a>
-      <a href="/admin" class="nav-link ml-1 bg-violet-600 text-white hover:bg-violet-700 hover:text-white">Admin</a>
-    </div>
-    <button data-burger class="md:hidden ml-auto p-2 text-white/90" aria-label="Menu">
-      <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    </button>
-  </div>
-  <div data-mobilemenu class="hidden md:hidden border-t border-white/10 bg-plum-deep/95">
-    <div class="container-cm py-2 flex flex-col">
-      <a href="/" class="nav-link py-3">🏠 Home</a>
-      <a href="/marketplace" class="nav-link py-3">🛒 Marketplace</a>
-      <a href="/sell" class="nav-link py-3">🏷️ Sell an Item</a>
-      <a href="/news" class="nav-link py-3">📰 News</a>
-      <a href="/profile" class="nav-link py-3">👤 Profile</a>
-      <a href="/admin" class="nav-link py-3">⚙️ Admin</a>
-    </div>
-  </div>
-</nav>
-
-<!-- HEADER -->
-<header class="bg-hero-plum text-white">
-  <div class="container-cm py-10 sm:py-14">
-    <p class="text-[0.68rem] tracking-[0.28em] uppercase text-violet-300 font-medium mb-2">Makhanda Happening</p>
-    <h1 class="font-syne text-3xl sm:text-5xl font-extrabold tracking-tight">Campus News &amp; Blog</h1>
-    <p class="text-white/60 mt-3 max-w-xl text-sm sm:text-base">Events, specials, notices and the occasional bit of campus gossip — straight from the streets of Makhanda.</p>
+<!-- HERO -->
+<header class="bg-hero-plum text-white relative overflow-hidden">
+  <div class="absolute inset-0 bg-aurora opacity-40 animate-aurora"></div>
+  <div class="container-wide relative py-12 sm:py-16">
+    <span class="pill-glass mb-3">📰 Makhanda Happening</span>
+    <h1 class="font-syne text-4xl sm:text-6xl font-extrabold tracking-tight">News, Bursaries<br/>&amp; <span class="text-shimmer">Opportunities</span></h1>
+    <p class="text-white/65 mt-4 max-w-2xl">Everything affecting Rhodes &amp; Makhanda students in one feed — full articles, real application links, academic events across SA. Don't miss a deadline.</p>
   </div>
 </header>
 
-<main class="container-cm py-8">
+<!-- GUEST UPSELL -->
+<div data-guest-only class="bg-violet-100 border-b border-violet-200">
+  <div class="container-wide py-3 flex flex-wrap items-center gap-3 text-sm">
+    <span class="text-plum font-semibold">👀 Browsing as guest.</span>
+    <span class="text-muted">Sign up to bookmark articles &amp; get bursary deadline alerts.</span>
+    <a href="/?next=%2Fnews#enter" class="btn-primary !py-2 !px-4 !text-xs ml-auto">Sign up free</a>
+  </div>
+</div>
+
+<main class="container-wide py-8">
+
+  <!-- featured -->
+  <section id="featured" class="mb-10"></section>
+
+  <!-- tag filter -->
   <div id="tags" class="flex gap-2 overflow-x-auto no-scrollbar pb-2 mb-6"></div>
+
+  <!-- grid -->
   <div id="grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+
+  <p class="text-xs text-muted mt-6">Got campus news to share? <a href="/suggest" class="text-plum font-semibold hover:underline">Tell us</a> — we'll publish the good stuff.</p>
 </main>
 
-<footer class="border-t border-plum-rim bg-white mt-8">
-  <div class="container-cm py-10 text-sm text-muted flex flex-col sm:flex-row gap-4 items-center justify-between">
-    <div>© <span data-year></span> Campus Marketplace · Makhanda 🇿🇦</div>
-    <div class="flex gap-4">
-      <a href="/" class="hover:text-plum">Home</a>
-      <a href="/marketplace" class="hover:text-plum">Marketplace</a>
-      <a href="/sell" class="hover:text-plum">Sell</a>
-    </div>
-  </div>
-</footer>
+<div id="cm-footer"></div>
 
-<!-- ARTICLE MODAL -->
+<!-- ARTICLE MODAL with multi-page support -->
 <div id="modal" class="fixed inset-0 z-[300] hidden">
-  <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeArticle()"></div>
-  <div class="absolute inset-x-0 bottom-0 sm:inset-0 sm:m-auto sm:max-w-2xl sm:h-fit bg-white rounded-t-3xl sm:rounded-3xl shadow-plumlg max-h-[92vh] overflow-y-auto animate-fade-up">
+  <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeArticle()"></div>
+  <div class="absolute inset-x-0 bottom-0 sm:inset-0 sm:m-auto sm:max-w-3xl sm:h-fit bg-white rounded-t-3xl sm:rounded-3xl shadow-plumlg max-h-[94vh] overflow-y-auto animate-pop">
     <div id="modalBody" class="p-5 sm:p-8"></div>
   </div>
 </div>
@@ -80,59 +62,242 @@
 <script src="/config.js" onerror="void 0"></script>
 <script src="/static/app.js"></script>
 <script>
-const { api, esc, qs, toast } = window.CM;
-let NEWS = [], activeTag = "All";
+const { api, esc, qs, qsa, toast } = window.CM;
 
-function tagList() { return ["All", ...new Set(NEWS.map(n => n.tag).filter(Boolean))]; }
+// ── Curated content (real-feel placeholders with external links) ──
+// Each item supports multi-page articles via `pages: [{ title, html }, ...]`
+const CURATED = [
+  {
+    id: "c-nsfas-2025", tag: "Bursaries", emoji: "💸",
+    title: "NSFAS 2025 applications: dates, documents & how to apply",
+    excerpt: "The National Student Financial Aid Scheme covers tuition, accommodation, transport and a learning material allowance for qualifying students.",
+    date: "Open now", deadline: "31 Jan 2025", featured: true,
+    external: "https://www.nsfas.org.za/content/how-to-apply.html",
+    pages: [
+      { title: "Overview", html: `<p>The <strong>National Student Financial Aid Scheme (NSFAS)</strong> remains the largest funding stream for South African students at public universities and TVET colleges. NSFAS covers tuition, an accommodation allowance, transport, and a learning materials grant.</p><h2>Who qualifies?</h2><ul><li>South African citizens</li><li>Combined household income ≤ R350,000 / year</li><li>SASSA grant recipients qualify automatically</li><li>Persons with disabilities — income ≤ R600,000 / year</li></ul>` },
+      { title: "Documents", html: `<h2>What you'll need</h2><ul><li>Certified copy of your ID (or smart card)</li><li>Parents/guardian ID copies</li><li>Proof of income (payslips, UIF, or affidavit)</li><li>Latest academic results / matric certificate</li><li>SASSA reference (if applicable)</li><li>Disability annexure (if applicable)</li></ul><p>Documents must be certified within the last 3 months.</p>` },
+      { title: "How to apply", html: `<h2>Step by step</h2><ol class="list-decimal pl-5 space-y-2"><li>Go to the official portal and create a myNSFAS account.</li><li>Verify your contact details via SMS / email OTP.</li><li>Complete the online application form.</li><li>Upload your certified supporting documents.</li><li>Submit and save your reference number.</li><li>Track your status weekly via the portal.</li></ol><p>👉 Apply directly: <a href="https://www.nsfas.org.za/content/how-to-apply.html" target="_blank" rel="noopener">nsfas.org.za</a></p>` },
+    ],
+  },
+  {
+    id: "c-funza", tag: "Bursaries", emoji: "👩‍🏫",
+    title: "Funza Lushaka: Teaching bursary for future SA educators",
+    excerpt: "Full-cost bursary for students who want to qualify as teachers in priority subjects — paid back through years of public-school teaching.",
+    date: "Annually", deadline: "Jan / Feb (per year)",
+    external: "https://www.funzalushaka.doe.gov.za/",
+    pages: [
+      { title: "About", html: `<p><strong>Funza Lushaka</strong> is a multi-year bursary funded by the Department of Basic Education. It covers tuition, accommodation, meals, books and a small monthly stipend — but you commit to teaching at a public school for the number of years funded.</p>` },
+      { title: "Priority subjects", html: `<h2>Priority areas in 2025</h2><ul><li>Mathematics &amp; Mathematical Literacy</li><li>Natural &amp; Physical Sciences</li><li>Technology</li><li>African languages</li><li>Foundation Phase teaching</li></ul>` },
+      { title: "Apply", html: `<p>Applications open early in the year via the official Funza Lushaka portal. Selection prioritises students from rural and quintile 1–3 areas.</p><p>👉 <a href="https://www.funzalushaka.doe.gov.za/" target="_blank" rel="noopener">funzalushaka.doe.gov.za</a></p>` },
+    ],
+  },
+  {
+    id: "c-sasol", tag: "Bursaries", emoji: "⛽",
+    title: "Sasol Bursary 2025: Engineering, IT &amp; commerce",
+    excerpt: "Full-cost bursary plus a guaranteed graduate placement for top-performing STEM and commerce students.",
+    date: "Open mid-year", deadline: "31 Aug",
+    external: "https://www.sasol.com/careers/bursaries-and-graduates",
+    pages: [
+      { title: "Fields", html: `<p>Sasol funds students in Chemical, Mechanical, Electrical &amp; Mining Engineering, IT/Data Science, Geology, and select commerce streams.</p>` },
+      { title: "Includes", html: `<ul><li>Full tuition</li><li>Accommodation &amp; meals</li><li>Book allowance</li><li>Laptop</li><li>Vacation work + guaranteed graduate offer</li></ul>` },
+      { title: "Apply", html: `<p>Online via the Sasol Careers portal. Strong matric or first-year results required (typically 60%+ in core subjects).</p><p>👉 <a href="https://www.sasol.com/careers/bursaries-and-graduates" target="_blank" rel="noopener">sasol.com/careers</a></p>` },
+    ],
+  },
+  {
+    id: "c-investec", tag: "Opportunities", emoji: "💼",
+    title: "Investec CSI &amp; Bursary Programme",
+    excerpt: "For South African students with academic merit and financial need — covers all study costs across most degrees at SA universities.",
+    date: "Open mid-year",
+    external: "https://www.investec.com/en_za/about-us/community-and-impact.html",
+    pages: [
+      { title: "About", html: `<p>Investec's CSI bursary is famous for being generous: full tuition, residence, meals, monthly stipend, and a laptop. It's open to most undergraduate fields.</p>` },
+      { title: "Eligibility", html: `<ul><li>SA citizen, financial need</li><li>Strong matric or first-year academic record</li><li>Demonstrated leadership / community involvement</li></ul>` },
+    ],
+  },
+  {
+    id: "c-allan-gray", tag: "Opportunities", emoji: "🎓",
+    title: "Allan Gray Orbis Fellowship",
+    excerpt: "A six-year fellowship for high-potential South African students who want to become responsible entrepreneurs.",
+    date: "Open Feb–Apr",
+    external: "https://www.allangrayorbis.org/fellowship/",
+    pages: [
+      { title: "What it is", html: `<p>Not just a bursary — a full development programme over your undergraduate years, with mentorship, a peer cohort, leadership training, and a stipend. Applies to most degrees.</p>` },
+      { title: "Apply", html: `<p>👉 <a href="https://www.allangrayorbis.org/fellowship/" target="_blank" rel="noopener">allangrayorbis.org</a></p>` },
+    ],
+  },
+  {
+    id: "c-mandela", tag: "Opportunities", emoji: "🌍",
+    title: "Mandela Rhodes Scholarship — Postgraduate",
+    excerpt: "Full postgraduate funding at any SA university plus leadership development. Open to African citizens under 30.",
+    date: "Apr – Apr", deadline: "30 Apr",
+    external: "https://www.mandelarhodes.org/",
+    pages: [
+      { title: "About", html: `<p>The Mandela Rhodes Foundation funds African graduates pursuing postgraduate study at any South African university. Covers all costs and includes a renowned leadership development programme.</p>` },
+      { title: "Eligibility", html: `<ul><li>African citizen, age &lt; 30</li><li>Strong undergraduate record (avg ~70%+)</li><li>Demonstrated leadership &amp; impact</li></ul><p>👉 <a href="https://www.mandelarhodes.org/" target="_blank" rel="noopener">mandelarhodes.org</a></p>` },
+    ],
+  },
+  {
+    id: "c-saica", tag: "Academic Events", emoji: "📊",
+    title: "SAICA student events &amp; ITC dates 2025",
+    excerpt: "Initial Test of Competence, board exams, and student networking events across SA hosted by SAICA.",
+    date: "Year-round",
+    external: "https://www.saica.co.za/",
+    pages: [
+      { title: "Events", html: `<p>SAICA hosts regular student events at major universities: workshops on the ITC, articles, and networking with the Big 4. Worth attending if you're on a CA(SA) path.</p>` },
+      { title: "Find your event", html: `<p>👉 <a href="https://www.saica.co.za/" target="_blank" rel="noopener">saica.co.za / Events</a></p>` },
+    ],
+  },
+  {
+    id: "c-sa-research-day", tag: "Academic Events", emoji: "🔬",
+    title: "National Postgraduate Research Days 2025",
+    excerpt: "South African universities host annual research showcases — open to undergrads thinking about honours/masters.",
+    date: "Sep – Oct",
+    pages: [
+      { title: "Why go", html: `<p>If you're considering postgrad, spend a day at a Research Day: poster sessions, faculty Q&amp;A, and a feel for active labs. Rhodes hosts its own annual showcase in October.</p>` },
+    ],
+  },
+  {
+    id: "c-google-step", tag: "Opportunities", emoji: "👩‍💻",
+    title: "Google STEP Internship — Johannesburg",
+    excerpt: "Paid 12-week software engineering internship for first/second-year computer science students at Google's Joburg office.",
+    date: "Apps open Oct",
+    external: "https://buildyourfuture.withgoogle.com/programs/step",
+    pages: [
+      { title: "About", html: `<p>STEP is Google's introductory engineering internship. You get paired with a mentor, ship a real project, and join a peer cohort. Big stepping-stone toward a full SWE internship.</p>` },
+      { title: "Apply", html: `<p>👉 <a href="https://buildyourfuture.withgoogle.com/programs/step" target="_blank" rel="noopener">buildyourfuture.withgoogle.com</a></p>` },
+    ],
+  },
+  {
+    id: "c-discovery", tag: "Opportunities", emoji: "🏥",
+    title: "Discovery Foundation Awards — Medical &amp; Health Sciences",
+    excerpt: "Funding for medical students, public-health research, and rural healthcare specialists.",
+    date: "Aug deadline",
+    external: "https://www.discovery.co.za/corporate/foundation",
+    pages: [
+      { title: "Tracks", html: `<ul><li>MBChB Academic Fellowship</li><li>Sub-Specialist Awards</li><li>Rural Awards</li><li>Public Health Awards</li></ul>` },
+      { title: "Apply", html: `<p>👉 <a href="https://www.discovery.co.za/corporate/foundation" target="_blank" rel="noopener">discovery.co.za / Foundation</a></p>` },
+    ],
+  },
+  {
+    id: "c-rhodes-month", tag: "Campus Life", emoji: "🎓",
+    title: "Rhodes University Heritage Month — what's on",
+    excerpt: "Talks, exhibitions, and an open-air concert on the Drostdy Lawns. Free for students with a card.",
+    date: "Sep",
+    pages: [
+      { title: "Programme", html: `<p>Drostdy Lawns concert, History of Makhanda walking tour, Eden Grove panel on decoloniality, IsiXhosa film night at the Monument. Full programme on the Rhodes Communications &amp; Advancement site.</p>` },
+    ],
+  },
+];
+
+let TAG = "All", REMOTE = [];
+
+const all = () => [...CURATED, ...REMOTE];
+const tagList = () => ["All", ...new Set(all().map(n => n.tag).filter(Boolean))];
 
 function renderTags() {
   qs("#tags").innerHTML = tagList().map(t =>
-    `<button class="chip ${t===activeTag?'chip-active':''}" data-tag="${esc(t)}">${esc(t)}</button>`
+    `<button class="chip ${t===TAG?'chip-active':''}" data-tag="${esc(t)}">${esc(t)}</button>`
   ).join("");
-  qs("#tags").querySelectorAll(".chip").forEach(b =>
-    b.addEventListener("click", () => { activeTag = b.dataset.tag; renderTags(); renderGrid(); })
+  qsa("#tags .chip").forEach(b =>
+    b.addEventListener("click", () => { TAG = b.dataset.tag; renderTags(); renderGrid(); })
   );
 }
 
-function renderGrid() {
-  const list = activeTag === "All" ? NEWS : NEWS.filter(n => n.tag === activeTag);
-  qs("#grid").innerHTML = list.length ? list.map(n => `
-    <button class="card card-hover text-left overflow-hidden flex flex-col" onclick="openArticle('${esc(n.id)}')">
-      <div class="aspect-video bg-plum-wash flex items-center justify-center text-5xl">
-        ${n.imageUrl ? `<img src="${esc(n.imageUrl)}" alt="${esc(n.title)}" class="w-full h-full object-cover"/>` : `<span>${esc(n.emoji||'📰')}</span>`}
+function renderFeatured() {
+  const f = CURATED.find(c => c.featured);
+  if (!f) return;
+  qs("#featured").innerHTML = `
+    <button onclick="openArticle('${esc(f.id)}')" class="card card-hover w-full text-left overflow-hidden grid lg:grid-cols-[1.2fr_1fr]">
+      <div class="bg-hero-plum text-white p-6 sm:p-10 relative overflow-hidden">
+        <div class="absolute inset-0 bg-aurora opacity-30 animate-aurora"></div>
+        <div class="relative">
+          <span class="pill-glass mb-3">⭐ Featured</span>
+          <h2 class="font-syne text-2xl sm:text-4xl font-extrabold leading-tight">${esc(f.title)}</h2>
+          <p class="text-white/70 mt-3 text-sm">${esc(f.excerpt)}</p>
+          ${f.deadline?`<div class="mt-4 inline-flex items-center gap-2 bg-red-500/30 px-3 py-1.5 rounded-full text-xs font-bold">⏰ Deadline: ${esc(f.deadline)}</div>`:""}
+        </div>
       </div>
-      <div class="p-4 flex flex-col flex-1">
-        <span class="badge self-start mb-2">${esc(n.tag||'News')}</span>
-        <h3 class="font-syne font-bold leading-snug">${esc(n.title)}</h3>
-        <p class="text-sm text-muted mt-1.5 line-clamp-3 flex-1">${esc(n.excerpt||'')}</p>
-        <div class="text-xs text-muted mt-3">${esc(n.date||'')}</div>
-      </div>
-    </button>`).join("")
-    : `<div class="col-span-full text-center py-20 text-muted"><div class="text-5xl mb-3">📭</div><p>No posts under “${esc(activeTag)}”.</p></div>`;
+      <div class="bg-plum-wash grid place-items-center p-10 text-8xl">${esc(f.emoji||'📰')}</div>
+    </button>`;
 }
 
-function openArticle(id) {
-  const n = NEWS.find(x => x.id === id); if (!n) return;
-  qs("#modalBody").innerHTML = `
-    <div class="flex justify-end -mt-1 -mr-1"><button onclick="closeArticle()" class="text-muted hover:text-plum p-1" aria-label="Close">✕</button></div>
-    <div class="rounded-2xl overflow-hidden aspect-video bg-plum-wash flex items-center justify-center text-7xl mb-5">
+function card(n) {
+  return `<button class="card card-hover text-left overflow-hidden flex flex-col" onclick="openArticle('${esc(n.id)}')">
+    <div class="aspect-video bg-plum-wash flex items-center justify-center text-5xl relative">
       ${n.imageUrl ? `<img src="${esc(n.imageUrl)}" alt="${esc(n.title)}" class="w-full h-full object-cover"/>` : `<span>${esc(n.emoji||'📰')}</span>`}
+      ${n.deadline?`<span class="absolute top-2 right-2 badge bg-red-100 text-red-700">⏰ ${esc(n.deadline)}</span>`:''}
     </div>
-    <span class="badge">${esc(n.tag||'News')}</span>
-    <h1 class="font-syne text-2xl sm:text-3xl font-extrabold mt-2">${esc(n.title)}</h1>
-    <div class="text-xs text-muted mt-1">${esc(n.date||'')}</div>
-    <div class="prose-cm text-[0.95rem] text-ink/80 leading-relaxed mt-4 space-y-3">${n.content||('<p>'+esc(n.excerpt||'')+'</p>')}</div>`;
+    <div class="p-4 flex flex-col flex-1">
+      <span class="badge self-start mb-2">${esc(n.tag||'News')}</span>
+      <h3 class="font-syne font-bold leading-snug">${esc(n.title)}</h3>
+      <p class="text-sm text-muted mt-1.5 line-clamp-3 flex-1">${esc(n.excerpt||'')}</p>
+      <div class="flex items-center justify-between mt-3">
+        <div class="text-xs text-muted">${esc(n.date||'')}</div>
+        ${n.external?`<span class="text-[0.65rem] text-plum font-semibold">↗ external</span>`:n.pages?`<span class="text-[0.65rem] text-plum font-semibold">📖 ${n.pages.length} pages</span>`:''}
+      </div>
+    </div>
+  </button>`;
+}
+
+function renderGrid() {
+  const list = TAG === "All" ? all() : all().filter(n => n.tag === TAG);
+  qs("#grid").innerHTML = list.length ? list.map(card).join("")
+    : `<div class="col-span-full text-center py-20 text-muted"><div class="text-5xl mb-3">📭</div><p>No posts under "${esc(TAG)}".</p></div>`;
+}
+
+// ── multi-page article modal ──
+let CURRENT_ID = null, CURRENT_PAGE = 0;
+function openArticle(id) {
+  const n = all().find(x => x.id === id); if (!n) return;
+  CURRENT_ID = id; CURRENT_PAGE = 0;
+  renderArticle(n);
   qs("#modal").classList.remove("hidden");
   document.body.style.overflow = "hidden";
 }
-function closeArticle() { qs("#modal").classList.add("hidden"); document.body.style.overflow = ""; }
-window.openArticle = openArticle; window.closeArticle = closeArticle;
-document.addEventListener("keydown", e => { if (e.key === "Escape") closeArticle(); });
+function renderArticle(n) {
+  const pages = n.pages || (n.content ? [{ title: "Read", html: n.content }] : [{ title: "Read", html: "<p>" + esc(n.excerpt || "") + "</p>" }]);
+  const p = pages[CURRENT_PAGE] || pages[0];
+  const dots = pages.map((_,i) => `<button onclick="gotoPage(${i})" class="w-2.5 h-2.5 rounded-full ${i===CURRENT_PAGE?'bg-plum':'bg-plum-rim'}" aria-label="Page ${i+1}"></button>`).join("");
+  const tabs = pages.map((pg,i) => `<button onclick="gotoPage(${i})" class="chip ${i===CURRENT_PAGE?'chip-active':''}">${esc(pg.title)}</button>`).join("");
+  qs("#modalBody").innerHTML = `
+    <div class="flex justify-between items-start mb-3">
+      <div><span class="badge">${esc(n.tag||'News')}</span></div>
+      <button onclick="closeArticle()" class="text-muted hover:text-plum p-1" aria-label="Close">✕</button>
+    </div>
+    <div class="rounded-2xl overflow-hidden aspect-video bg-plum-wash flex items-center justify-center text-7xl mb-5">
+      ${n.imageUrl ? `<img src="${esc(n.imageUrl)}" alt="${esc(n.title)}" class="w-full h-full object-cover"/>` : `<span>${esc(n.emoji||'📰')}</span>`}
+    </div>
+    <h1 class="font-syne text-2xl sm:text-3xl font-extrabold">${esc(n.title)}</h1>
+    <div class="flex flex-wrap items-center gap-2 mt-2 text-xs text-muted">
+      <span>${esc(n.date||'')}</span>${n.deadline?`<span>·</span><span class="text-red-600 font-bold">⏰ ${esc(n.deadline)}</span>`:''}
+    </div>
+    ${pages.length>1?`<div class="flex flex-wrap gap-2 mt-5">${tabs}</div>`:''}
+    <article class="prose-cm text-[0.95rem] text-ink/85 mt-5">${p.html}</article>
+    <div class="mt-7 flex items-center justify-between gap-3 border-t border-plum-rim pt-5">
+      <button onclick="prevPage()" class="btn-ghost !py-2 !px-4 !text-xs ${CURRENT_PAGE===0?'invisible':''}">← Prev</button>
+      <div class="flex gap-1.5">${dots}</div>
+      ${CURRENT_PAGE < pages.length - 1
+        ? `<button onclick="nextPage()" class="btn-primary !py-2 !px-4 !text-xs">Next →</button>`
+        : (n.external ? `<a href="${esc(n.external)}" target="_blank" rel="noopener" class="btn-primary !py-2 !px-4 !text-xs">Apply / Visit ↗</a>` : `<button onclick="closeArticle()" class="btn-primary !py-2 !px-4 !text-xs">Done ✓</button>`)}
+    </div>`;
+}
+function gotoPage(i) { const n = all().find(x => x.id === CURRENT_ID); if (!n) return; CURRENT_PAGE = i; renderArticle(n); qs("#modalBody").scrollTo({top:0,behavior:'smooth'}); }
+function nextPage() { gotoPage(CURRENT_PAGE + 1); }
+function prevPage() { gotoPage(CURRENT_PAGE - 1); }
+function closeArticle() { qs("#modal").classList.add("hidden"); document.body.style.overflow = ""; CURRENT_ID = null; CURRENT_PAGE = 0; }
+window.openArticle = openArticle; window.closeArticle = closeArticle; window.gotoPage = gotoPage; window.nextPage = nextPage; window.prevPage = prevPage;
+document.addEventListener("keydown", e => {
+  if (qs("#modal").classList.contains("hidden")) return;
+  if (e.key === "Escape") closeArticle();
+  if (e.key === "ArrowRight") nextPage();
+  if (e.key === "ArrowLeft") prevPage();
+});
 
 (async function init() {
-  qs("#grid").innerHTML = Array.from({length:6}).map(()=>`<div class="card animate-pulse h-72"></div>`).join("");
-  try { NEWS = await api.news(); } catch (e) { toast("Couldn't load news.", "error"); NEWS = []; }
-  renderTags(); renderGrid();
+  renderFeatured();
+  renderTags();
+  renderGrid();
+  try { REMOTE = await api.news(); renderTags(); renderGrid(); } catch (_) {}
 })();
 </script>
 </body>

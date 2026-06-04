@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="description" content="For developers — Campus Marketplace stack, API and contribution guide."/>
+<title>For Developers · Campus Marketplace</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/static/tailwind.css"/>
+<style>code,pre{font-family:'JetBrains Mono','Fira Code',ui-monospace,monospace;}</style>
+<script>(function(){try{var u=JSON.parse(localStorage.getItem("cm_user")||"null");var g=localStorage.getItem("cm_guest")==="1";if(!u&&!g)location.replace("/?next=%2Fdevelopers#enter");}catch(e){location.replace("/?next=%2Fdevelopers#enter");}})();</script>
+</head>
+<body class="pt-14 bg-plum-deep text-white/85">
+<div id="cm-nav"></div>
+
+<header class="relative overflow-hidden">
+  <div class="absolute inset-0 bg-aurora opacity-50 animate-aurora"></div>
+  <div class="absolute inset-0 bg-grid-plum [background-size:42px_42px] opacity-40 mask-fade-b"></div>
+  <div class="container-wide relative py-16 sm:py-24">
+    <span class="pill-glass mb-4">⌨️ For developers</span>
+    <h1 class="font-syne text-4xl sm:text-6xl font-extrabold tracking-tight">A student-built<br/><span class="text-shimmer">student platform.</span></h1>
+    <p class="text-white/70 mt-5 max-w-2xl">Peek under the hood. Dependency-light backend, a JSON API, vanilla JS frontend, and a Tailwind design system. If you're a Rhodes student who codes — come build with us.</p>
+    <div class="flex flex-wrap gap-3 mt-6">
+      <a href="#api" class="btn-glow">Explore the API</a>
+      <a href="/suggest" class="btn-glass">Contribute an idea</a>
+    </div>
+  </div>
+</header>
+
+<main class="container-wide py-12 space-y-14">
+
+  <!-- STACK -->
+  <section>
+    <p class="eyebrow-light reveal">The stack</p>
+    <h2 class="font-syne text-3xl font-extrabold mt-1 reveal">Boring tech, on purpose.</h2>
+    <p class="text-white/60 mt-3 max-w-2xl reveal">Lean stack, easy to clone &amp; run anywhere. No Node required to start it — just Python 3 + Flask.</p>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+      <div class="glass-card p-5 reveal"><div class="text-2xl">🐍</div><div class="font-syne font-bold mt-2">Backend</div><div class="text-white/55 text-sm mt-1">Flask · SQLite · stdlib only</div></div>
+      <div class="glass-card p-5 reveal"><div class="text-2xl">🎨</div><div class="font-syne font-bold mt-2">Styling</div><div class="text-white/55 text-sm mt-1">Tailwind 3 · custom plum tokens</div></div>
+      <div class="glass-card p-5 reveal"><div class="text-2xl">⚡</div><div class="font-syne font-bold mt-2">Frontend</div><div class="text-white/55 text-sm mt-1">Vanilla JS · zero framework</div></div>
+      <div class="glass-card p-5 reveal"><div class="text-2xl">📦</div><div class="font-syne font-bold mt-2">Deploy</div><div class="text-white/55 text-sm mt-1">Anywhere · GCP Cloud Shell-friendly</div></div>
+    </div>
+  </section>
+
+  <!-- GETTING STARTED -->
+  <section class="glass-card p-7 sm:p-10">
+    <p class="eyebrow-light">Get up &amp; running</p>
+    <h2 class="font-syne text-2xl font-extrabold mt-1">Run it locally in 30 seconds</h2>
+    <div class="grid lg:grid-cols-2 gap-4 mt-6">
+      <div>
+        <div class="text-white/55 text-xs uppercase tracking-wider mb-2">① Install</div>
+        <pre class="rounded-xl bg-black/40 border border-white/10 p-4 text-sm overflow-x-auto"><code>pip install --user -r requirements.txt</code></pre>
+      </div>
+      <div>
+        <div class="text-white/55 text-xs uppercase tracking-wider mb-2">② Run</div>
+        <pre class="rounded-xl bg-black/40 border border-white/10 p-4 text-sm overflow-x-auto"><code>python3 app.py
+# → http://localhost:5000</code></pre>
+      </div>
+      <div class="lg:col-span-2">
+        <div class="text-white/55 text-xs uppercase tracking-wider mb-2">③ Rebuild Tailwind (only if you edit input.css)</div>
+        <pre class="rounded-xl bg-black/40 border border-white/10 p-4 text-sm overflow-x-auto"><code>npm install
+npm run build:css</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- API -->
+  <section id="api">
+    <p class="eyebrow-light reveal">The API</p>
+    <h2 class="font-syne text-3xl font-extrabold mt-1 reveal">JSON endpoints</h2>
+    <p class="text-white/60 mt-3 max-w-2xl reveal">All routes return JSON. Admin-only routes need an <code class="text-violet-200">X-Admin-Key</code> header.</p>
+    <div class="mt-6 grid gap-3" id="endpoints"></div>
+  </section>
+
+  <!-- ROADMAP -->
+  <section>
+    <p class="eyebrow-light reveal">Open roadmap</p>
+    <h2 class="font-syne text-3xl font-extrabold mt-1 reveal">What we're building next</h2>
+    <div class="grid sm:grid-cols-3 gap-4 mt-6">
+      <div class="glass-card p-5"><div class="badge badge-green">Shipped</div><ul class="mt-3 space-y-1.5 text-sm text-white/70 list-disc pl-5"><li>Landing + auth gate</li><li>Marketplace + sell flow</li><li>News + bursaries</li><li>Guardian Mode (prototype)</li></ul></div>
+      <div class="glass-card p-5"><div class="badge badge-amber">In progress</div><ul class="mt-3 space-y-1.5 text-sm text-white/70 list-disc pl-5"><li>Supabase backend</li><li>Real auth (email + Google)</li><li>Supabase Storage uploads</li><li>Driver onboarding flow</li></ul></div>
+      <div class="glass-card p-5"><div class="badge">Planned</div><ul class="mt-3 space-y-1.5 text-sm text-white/70 list-disc pl-5"><li>Premium boosts</li><li>Push notifications</li><li>Native mobile app</li><li>Study-group chats</li></ul></div>
+    </div>
+  </section>
+
+  <!-- CONTRIBUTE CTA -->
+  <section class="glass-card p-8 sm:p-12 text-center relative overflow-hidden">
+    <div class="absolute inset-0 bg-aurora opacity-40 animate-aurora"></div>
+    <div class="relative">
+      <div class="text-5xl mb-2">⌨️</div>
+      <h2 class="font-syne text-3xl font-extrabold">Want to contribute?</h2>
+      <p class="text-white/60 mt-3 max-w-xl mx-auto">Are you a Rhodes student who codes? We'd love your help. Drop your idea or DM and we'll set you up.</p>
+      <div class="mt-5 flex flex-wrap gap-3 justify-center">
+        <a href="/suggest" class="btn-glow">💡 Pitch a feature</a>
+        <a href="/founder" class="btn-glass">Reach the founder</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div id="cm-footer"></div>
+
+<script src="/config.js" onerror="void 0"></script>
+<script src="/static/app.js"></script>
+<script>
+const { qs, esc } = window.CM;
+const EPS = [
+  ["GET", "/api/listings?status=approved", "Browse all approved listings.", false],
+  ["POST", "/api/listings", "Create a new listing (pending approval).", false],
+  ["POST", "/api/listings/:id/status", "Update status (approved · rejected · sold).", true],
+  ["DELETE", "/api/listings/:id", "Delete a listing.", true],
+  ["GET", "/api/stats", "Live counts of listings, sellers, categories.", false],
+  ["GET", "/api/news", "All news/blog items.", false],
+  ["POST", "/api/news", "Publish a news item.", true],
+  ["GET", "/api/suggestions", "Public suggestion board (most recent).", false],
+  ["POST", "/api/suggestions", "Submit a suggestion / bug / feature.", false],
+  ["POST", "/api/admin/login", "Exchange username/password for an admin key.", false],
+];
+qs("#endpoints").innerHTML = EPS.map(([m,p,d,admin]) => `
+  <div class="glass-card p-4 flex items-start gap-3">
+    <span class="badge ${m==='GET'?'badge-green':m==='POST'?'badge-amber':'badge-red'}">${esc(m)}</span>
+    <div class="flex-1 min-w-0">
+      <code class="text-violet-200 text-sm font-bold">${esc(p)}</code>
+      <div class="text-white/55 text-sm mt-1">${esc(d)}</div>
+    </div>
+    ${admin?'<span class="pill-glass !text-[0.6rem]">🔐 admin</span>':''}
+  </div>`).join("");
+</script>
+</body>
+</html>

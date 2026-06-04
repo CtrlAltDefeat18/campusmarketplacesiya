@@ -126,6 +126,15 @@ input,select,textarea{font-family:inherit;}
 .flash ul{margin:0;padding-left:1.4rem;}
 .flash li{font-size:.76rem;color:#991b1b;line-height:1.6;}
 </style>
+<script>
+  // Sellers must have a real account (guests can't list).
+  (function () {
+    try {
+      var u = JSON.parse(localStorage.getItem("cm_user") || "null");
+      if (!u) { location.replace("/?next=%2Fsell#enter"); }
+    } catch (e) { location.replace("/?next=%2Fsell#enter"); }
+  })();
+</script>
 </head>
 <body>
 
