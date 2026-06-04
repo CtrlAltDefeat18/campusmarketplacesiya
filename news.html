@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="description" content="Makhanda Happening — campus news, events, specials and notices for Rhodes University students."/>
+<title>News · Campus Marketplace</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/static/tailwind.css"/>
+</head>
+<body class="pt-14">
+
+<!-- NAV -->
+<nav class="nav-shell">
+  <div class="container-cm flex items-center gap-3 h-14">
+    <a href="/" class="flex items-center gap-2 shrink-0">
+      <img src="/favicon.svg" class="h-8 w-8" alt=""/>
+      <span class="font-syne font-extrabold text-white text-sm tracking-tight">Campus<span class="text-violet-300">Marketplace</span></span>
+    </a>
+    <div class="ml-auto hidden md:flex items-center gap-1">
+      <a href="/" data-navlink class="nav-link">Home</a>
+      <a href="/marketplace" data-navlink class="nav-link">Marketplace</a>
+      <a href="/sell" data-navlink class="nav-link">Sell</a>
+      <a href="/news" data-navlink class="nav-link">News</a>
+      <a href="/profile" data-navlink class="nav-link">Profile</a>
+      <a href="/admin" class="nav-link ml-1 bg-violet-600 text-white hover:bg-violet-700 hover:text-white">Admin</a>
+    </div>
+    <button data-burger class="md:hidden ml-auto p-2 text-white/90" aria-label="Menu">
+      <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+  <div data-mobilemenu class="hidden md:hidden border-t border-white/10 bg-plum-deep/95">
+    <div class="container-cm py-2 flex flex-col">
+      <a href="/" class="nav-link py-3">🏠 Home</a>
+      <a href="/marketplace" class="nav-link py-3">🛒 Marketplace</a>
+      <a href="/sell" class="nav-link py-3">🏷️ Sell an Item</a>
+      <a href="/news" class="nav-link py-3">📰 News</a>
+      <a href="/profile" class="nav-link py-3">👤 Profile</a>
+      <a href="/admin" class="nav-link py-3">⚙️ Admin</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HEADER -->
+<header class="bg-hero-plum text-white">
+  <div class="container-cm py-10 sm:py-14">
+    <p class="text-[0.68rem] tracking-[0.28em] uppercase text-violet-300 font-medium mb-2">Makhanda Happening</p>
+    <h1 class="font-syne text-3xl sm:text-5xl font-extrabold tracking-tight">Campus News &amp; Blog</h1>
+    <p class="text-white/60 mt-3 max-w-xl text-sm sm:text-base">Events, specials, notices and the occasional bit of campus gossip — straight from the streets of Makhanda.</p>
+  </div>
+</header>
+
+<main class="container-cm py-8">
+  <div id="tags" class="flex gap-2 overflow-x-auto no-scrollbar pb-2 mb-6"></div>
+  <div id="grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+</main>
+
+<footer class="border-t border-plum-rim bg-white mt-8">
+  <div class="container-cm py-10 text-sm text-muted flex flex-col sm:flex-row gap-4 items-center justify-between">
+    <div>© <span data-year></span> Campus Marketplace · Makhanda 🇿🇦</div>
+    <div class="flex gap-4">
+      <a href="/" class="hover:text-plum">Home</a>
+      <a href="/marketplace" class="hover:text-plum">Marketplace</a>
+      <a href="/sell" class="hover:text-plum">Sell</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ARTICLE MODAL -->
+<div id="modal" class="fixed inset-0 z-[300] hidden">
+  <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeArticle()"></div>
+  <div class="absolute inset-x-0 bottom-0 sm:inset-0 sm:m-auto sm:max-w-2xl sm:h-fit bg-white rounded-t-3xl sm:rounded-3xl shadow-plumlg max-h-[92vh] overflow-y-auto animate-fade-up">
+    <div id="modalBody" class="p-5 sm:p-8"></div>
+  </div>
+</div>
+
+<script src="/config.js" onerror="void 0"></script>
+<script src="/static/app.js"></script>
+<script>
+const { api, esc, qs, toast } = window.CM;
+let NEWS = [], activeTag = "All";
+
+function tagList() { return ["All", ...new Set(NEWS.map(n => n.tag).filter(Boolean))]; }
+
+function renderTags() {
+  qs("#tags").innerHTML = tagList().map(t =>
+    `<button class="chip ${t===activeTag?'chip-active':''}" data-tag="${esc(t)}">${esc(t)}</button>`
+  ).join("");
+  qs("#tags").querySelectorAll(".chip").forEach(b =>
+    b.addEventListener("click", () => { activeTag = b.dataset.tag; renderTags(); renderGrid(); })
+  );
+}
+
+function renderGrid() {
+  const list = activeTag === "All" ? NEWS : NEWS.filter(n => n.tag === activeTag);
+  qs("#grid").innerHTML = list.length ? list.map(n => `
+    <button class="card card-hover text-left overflow-hidden flex flex-col" onclick="openArticle('${esc(n.id)}')">
+      <div class="aspect-video bg-plum-wash flex items-center justify-center text-5xl">
+        ${n.imageUrl ? `<img src="${esc(n.imageUrl)}" alt="${esc(n.title)}" class="w-full h-full object-cover"/>` : `<span>${esc(n.emoji||'📰')}</span>`}
+      </div>
+      <div class="p-4 flex flex-col flex-1">
+        <span class="badge self-start mb-2">${esc(n.tag||'News')}</span>
+        <h3 class="font-syne font-bold leading-snug">${esc(n.title)}</h3>
+        <p class="text-sm text-muted mt-1.5 line-clamp-3 flex-1">${esc(n.excerpt||'')}</p>
+        <div class="text-xs text-muted mt-3">${esc(n.date||'')}</div>
+      </div>
+    </button>`).join("")
+    : `<div class="col-span-full text-center py-20 text-muted"><div class="text-5xl mb-3">📭</div><p>No posts under “${esc(activeTag)}”.</p></div>`;
+}
+
+function openArticle(id) {
+  const n = NEWS.find(x => x.id === id); if (!n) return;
+  qs("#modalBody").innerHTML = `
+    <div class="flex justify-end -mt-1 -mr-1"><button onclick="closeArticle()" class="text-muted hover:text-plum p-1" aria-label="Close">✕</button></div>
+    <div class="rounded-2xl overflow-hidden aspect-video bg-plum-wash flex items-center justify-center text-7xl mb-5">
+      ${n.imageUrl ? `<img src="${esc(n.imageUrl)}" alt="${esc(n.title)}" class="w-full h-full object-cover"/>` : `<span>${esc(n.emoji||'📰')}</span>`}
+    </div>
+    <span class="badge">${esc(n.tag||'News')}</span>
+    <h1 class="font-syne text-2xl sm:text-3xl font-extrabold mt-2">${esc(n.title)}</h1>
+    <div class="text-xs text-muted mt-1">${esc(n.date||'')}</div>
+    <div class="prose-cm text-[0.95rem] text-ink/80 leading-relaxed mt-4 space-y-3">${n.content||('<p>'+esc(n.excerpt||'')+'</p>')}</div>`;
+  qs("#modal").classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+function closeArticle() { qs("#modal").classList.add("hidden"); document.body.style.overflow = ""; }
+window.openArticle = openArticle; window.closeArticle = closeArticle;
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeArticle(); });
+
+(async function init() {
+  qs("#grid").innerHTML = Array.from({length:6}).map(()=>`<div class="card animate-pulse h-72"></div>`).join("");
+  try { NEWS = await api.news(); } catch (e) { toast("Couldn't load news.", "error"); NEWS = []; }
+  renderTags(); renderGrid();
+})();
+</script>
+</body>
+</html>

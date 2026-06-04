@@ -1,0 +1,57 @@
+/* ═══════════════════════════════════════════════════════════════
+   Campus Marketplace · Makhanda — Tailwind source
+   Compile:  npm run build:css   →   static/tailwind.css
+   ═══════════════════════════════════════════════════════════════ */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { scroll-behavior: smooth; }
+  body { @apply font-sans text-ink bg-[#faf9fd] antialiased; }
+  h1, h2, h3, h4, .syne { @apply font-syne; }
+  ::selection { background: #e9d5ff; color: #4a1e6e; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: #c4a9e0; border-radius: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+}
+
+@layer components {
+  /* ── Layout ── */
+  .container-cm { @apply max-w-6xl mx-auto px-5; }
+  .section-cm   { @apply py-16 sm:py-20; }
+
+  /* ── Buttons ── */
+  .btn         { @apply inline-flex items-center justify-center gap-2 rounded-lg font-syne font-bold text-sm tracking-wide transition-all duration-200 select-none cursor-pointer; }
+  .btn-primary { @apply btn bg-plum text-white px-6 py-3 hover:bg-plum-mid hover:-translate-y-0.5 shadow-plum; }
+  .btn-violet  { @apply btn bg-violet-600 text-white px-6 py-3 hover:bg-violet-700 hover:-translate-y-0.5; }
+  .btn-ghost   { @apply btn border border-plum-rim text-muted px-6 py-3 bg-white hover:border-plum-mid hover:text-plum; }
+  .btn-wa      { @apply btn bg-wa text-white px-5 py-3 w-full hover:brightness-95; }
+  .btn-call    { @apply btn bg-plum text-white px-5 py-3 w-full hover:bg-plum-mid; }
+  .btn-fb      { @apply btn bg-[#1877F2] text-white px-5 py-3 w-full hover:brightness-95; }
+
+  /* ── Surfaces ── */
+  .card       { @apply bg-white border border-plum-rim rounded-2xl shadow-plum; }
+  .card-hover { @apply transition-all duration-300 hover:shadow-plumlg hover:-translate-y-1; }
+
+  /* ── Form controls ── */
+  .input { @apply w-full rounded-lg border-[1.5px] border-plum-rim px-3.5 py-2.5 text-sm text-ink bg-white outline-none transition focus:border-plum-mid focus:ring-4 focus:ring-plum/10; }
+  .label { @apply block text-[0.7rem] font-semibold uppercase tracking-wider text-muted mb-1; }
+
+  /* ── Chips & badges ── */
+  .chip        { @apply shrink-0 px-4 py-2 rounded-full text-sm font-semibold border-[1.5px] border-plum-rim text-muted bg-white cursor-pointer transition-all whitespace-nowrap hover:border-plum-mid hover:text-plum; }
+  .chip-active { @apply bg-plum text-white border-plum hover:text-white; }
+  .badge       { @apply inline-block text-[0.6rem] font-bold uppercase tracking-wide bg-plum-wash text-plum px-2 py-0.5 rounded-full; }
+  .badge-amber { @apply bg-amber-100 text-amber-800; }
+  .badge-green { @apply bg-green-100 text-green-700; }
+  .badge-red   { @apply bg-red-100 text-red-700; }
+
+  /* ── Nav (dark, glassy — matches landing page) ── */
+  .nav-shell      { @apply fixed top-0 inset-x-0 z-50 bg-plum-deep/95 backdrop-blur-xl border-b border-violet-300/10; }
+  .nav-link       { @apply text-white/70 text-[0.8rem] font-medium tracking-wide px-3 py-2 rounded-md transition hover:text-violet-200 hover:bg-violet-300/10; }
+  .nav-link-active{ @apply text-violet-200 bg-violet-300/10; }
+
+  /* ── Hide scrollbar (horizontal chip rows) ── */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+}

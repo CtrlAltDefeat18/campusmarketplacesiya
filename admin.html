@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="robots" content="noindex"/>
+<title>Admin · Campus Marketplace</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/static/tailwind.css"/>
+</head>
+<body class="pt-14">
+
+<!-- NAV -->
+<nav class="nav-shell">
+  <div class="container-cm flex items-center gap-3 h-14">
+    <a href="/" class="flex items-center gap-2 shrink-0">
+      <img src="/favicon.svg" class="h-8 w-8" alt=""/>
+      <span class="font-syne font-extrabold text-white text-sm tracking-tight">Campus<span class="text-violet-300">Marketplace</span></span>
+    </a>
+    <span class="hidden sm:inline text-[0.65rem] font-bold uppercase tracking-wider text-violet-300 bg-violet-300/10 px-2 py-1 rounded-md">Admin</span>
+    <div class="ml-auto flex items-center gap-1">
+      <a href="/" class="nav-link hidden sm:inline">Home</a>
+      <a href="/marketplace" class="nav-link hidden sm:inline">Marketplace</a>
+      <button id="logoutBtn" class="nav-link hidden">Log out</button>
+    </div>
+  </div>
+</nav>
+
+<!-- LOGIN -->
+<section id="loginView" class="hidden min-h-[80vh] grid place-items-center px-5">
+  <div class="card w-full max-w-sm p-7">
+    <div class="text-center mb-5">
+      <img src="/favicon.svg" class="h-12 w-12 mx-auto mb-3" alt=""/>
+      <h1 class="font-syne text-xl font-extrabold">Admin Panel</h1>
+      <p class="text-sm text-muted mt-1">Sign in to manage listings &amp; news.</p>
+    </div>
+    <form id="loginForm" class="space-y-3">
+      <div><label class="label">Username</label><input id="u" class="input" autocomplete="username" value="admin"/></div>
+      <div><label class="label">Password</label><input id="p" type="password" class="input" autocomplete="current-password" placeholder="••••••••"/></div>
+      <p id="loginErr" class="text-sm text-red-600 hidden"></p>
+      <button class="btn-primary w-full">Sign In</button>
+    </form>
+    <p class="text-[0.7rem] text-muted text-center mt-4 leading-relaxed">Pilot demo credentials: <b>admin</b> / <b>campus2025</b><br/>Change <code>ADMIN_PASS</code> in the environment before launch.</p>
+  </div>
+</section>
+
+<!-- DASHBOARD -->
+<section id="dashView" class="hidden">
+  <div class="container-cm py-8">
+    <h1 class="font-syne text-2xl sm:text-3xl font-extrabold">Dashboard</h1>
+    <p class="text-muted text-sm mt-1">Approve incoming listings before they go live on the marketplace.</p>
+
+    <!-- stats -->
+    <div id="stats" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5"></div>
+
+    <!-- tabs -->
+    <div class="flex gap-2 mt-7 border-b border-plum-rim">
+      <button data-tab="pending" class="tab px-4 py-2 font-semibold text-sm border-b-2 -mb-px">Pending <span id="pendCount" class="badge badge-amber ml-1"></span></button>
+      <button data-tab="all" class="tab px-4 py-2 font-semibold text-sm border-b-2 -mb-px">All Listings</button>
+      <button data-tab="news" class="tab px-4 py-2 font-semibold text-sm border-b-2 -mb-px">Post News</button>
+    </div>
+
+    <div id="tab-pending" class="tabpane mt-5"></div>
+    <div id="tab-all" class="tabpane mt-5 hidden"></div>
+    <div id="tab-news" class="tabpane mt-5 hidden max-w-xl">
+      <form id="newsForm" class="card p-5 space-y-3">
+        <div><label class="label">Headline</label><input id="n-title" class="input" placeholder="R10 Wine Night @ Rat & Parrot"/></div>
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="label">Tag</label><input id="n-tag" class="input" placeholder="Events"/></div>
+          <div><label class="label">Emoji</label><input id="n-emoji" class="input" placeholder="🍷" maxlength="4"/></div>
+        </div>
+        <div><label class="label">Excerpt</label><textarea id="n-excerpt" class="input" rows="2" placeholder="One-line summary shown on the card…"></textarea></div>
+        <div><label class="label">Body (HTML allowed)</label><textarea id="n-content" class="input" rows="4" placeholder="<p>Full article…</p>"></textarea></div>
+        <button class="btn-primary w-full">Publish Post</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<script src="/static/app.js"></script>
+<script>
+const { api, esc, money, qs, qsa, toast, isAdmin, setAdminKey } = window.CM;
+
+function show(view) {
+  qs("#loginView").classList.toggle("hidden", view !== "login");
+  qs("#dashView").classList.toggle("hidden", view !== "dash");
+  qs("#logoutBtn").classList.toggle("hidden", view !== "dash");
+}
+
+/* ── login ── */
+qs("#loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const err = qs("#loginErr"); err.classList.add("hidden");
+  try {
+    const r = await api.adminLogin(qs("#u").value.trim(), qs("#p").value);
+    setAdminKey(r.key);
+    show("dash"); loadDash();
+  } catch (_) {
+    err.textContent = "Invalid username or password."; err.classList.remove("hidden");
+  }
+});
+qs("#logoutBtn").addEventListener("click", () => { setAdminKey(""); show("login"); });
+
+/* ── tabs ── */
+qsa(".tab").forEach(t => t.addEventListener("click", () => activate(t.dataset.tab)));
+function activate(name) {
+  qsa(".tab").forEach(t => t.classList.toggle("active-tab", t.dataset.tab === name));
+  qsa(".tabpane").forEach(p => p.classList.add("hidden"));
+  qs("#tab-" + name).classList.remove("hidden");
+}
+
+/* ── dashboard data ── */
+async function loadDash() {
+  try {
+    const [items, stats] = await Promise.all([api.listings("all"), api.stats()]);
+    renderStats(stats);
+    renderPending(items.filter(i => i.status === "pending"));
+    renderAll(items);
+  } catch (e) {
+    if (e.status === 403) { setAdminKey(""); show("login"); return; }
+    toast("Failed to load dashboard.", "error");
+  }
+}
+
+function renderStats(s) {
+  const cards = [
+    ["Pending", s.pending, "badge-amber"],
+    ["Live listings", s.listings, "badge-green"],
+    ["Sellers", s.sellers, ""],
+    ["Categories", s.categories, ""],
+  ];
+  qs("#stats").innerHTML = cards.map(([label, val, cls]) => `
+    <div class="card p-4">
+      <div class="font-syne text-3xl font-extrabold text-plum">${val}</div>
+      <div class="text-xs text-muted mt-0.5">${label}</div>
+    </div>`).join("");
+  qs("#pendCount").textContent = s.pending;
+}
+
+function rowActions(p) {
+  return `<div class="flex flex-wrap gap-2">
+    ${p.status !== "approved" ? `<button class="btn-primary px-3 py-1.5 text-xs" onclick="setStatus('${esc(p.id)}','approved')">✓ Approve</button>` : ``}
+    ${p.status !== "rejected" ? `<button class="btn-ghost px-3 py-1.5 text-xs" onclick="setStatus('${esc(p.id)}','rejected')">✕ Reject</button>` : ``}
+    ${p.status === "approved" && !p.sold ? `<button class="btn-ghost px-3 py-1.5 text-xs" onclick="setStatus('${esc(p.id)}','sold')">Mark Sold</button>` : ``}
+    <button class="px-3 py-1.5 text-xs text-red-600 hover:underline" onclick="del('${esc(p.id)}')">Delete</button>
+  </div>`;
+}
+
+function listingRow(p) {
+  const s = p.seller || {};
+  const stColor = { approved: "badge-green", pending: "badge-amber", rejected: "badge-red" }[p.status] || "";
+  return `<div class="card p-4 flex flex-col sm:flex-row gap-4">
+    <div class="w-16 h-16 rounded-xl shrink-0 flex items-center justify-center text-3xl overflow-hidden" style="background:${esc(p.bg)||'#f5f0fb'}">
+      ${p.imageUrl ? `<img src="${esc(p.imageUrl)}" class="w-full h-full object-cover" alt=""/>` : `<span>${esc(p.emoji||'📦')}</span>`}
+    </div>
+    <div class="flex-1 min-w-0">
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="font-semibold">${esc(p.title)}</span>
+        <span class="badge ${stColor}">${esc(p.sold ? 'sold' : p.status)}</span>
+      </div>
+      <div class="text-sm text-plum font-syne font-bold">${money(p.price)}</div>
+      <div class="text-xs text-muted mt-0.5">${esc(p.category)} · ${esc(s.name||'—')} · 📞 ${esc(s.whatsapp||s.phone||'—')}</div>
+      <div class="mt-3">${rowActions(p)}</div>
+    </div>
+  </div>`;
+}
+
+function renderPending(list) {
+  qs("#tab-pending").innerHTML = list.length
+    ? `<div class="grid gap-3">${list.map(listingRow).join("")}</div>`
+    : `<div class="card p-10 text-center text-muted"><div class="text-4xl mb-2">✅</div>All caught up — no listings awaiting review.</div>`;
+}
+function renderAll(list) {
+  qs("#tab-all").innerHTML = list.length
+    ? `<div class="grid gap-3">${list.map(listingRow).join("")}</div>`
+    : `<div class="card p-10 text-center text-muted">No listings yet.</div>`;
+}
+
+async function setStatus(id, status) {
+  try { await api.setStatus(id, status); toast(`Listing ${status}.`); loadDash(); }
+  catch (e) { toast("Action failed.", "error"); }
+}
+async function del(id) {
+  if (!confirm("Delete this listing permanently?")) return;
+  try { await api.deleteListing(id); toast("Listing deleted."); loadDash(); }
+  catch (e) { toast("Delete failed.", "error"); }
+}
+window.setStatus = setStatus; window.del = del;
+
+/* ── post news ── */
+qs("#newsForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const payload = {
+    title: qs("#n-title").value.trim(),
+    tag: qs("#n-tag").value.trim() || "News",
+    emoji: qs("#n-emoji").value.trim() || "📰",
+    excerpt: qs("#n-excerpt").value.trim(),
+    content: qs("#n-content").value.trim(),
+  };
+  if (!payload.title) { toast("Add a headline first.", "error"); return; }
+  try { await api.createNews(payload); toast("Post published 🎉"); e.target.reset(); }
+  catch (err) { toast("Couldn't publish.", "error"); }
+});
+
+/* ── boot ── */
+activate("pending");
+if (isAdmin()) { show("dash"); loadDash(); } else { show("login"); }
+</script>
+
+<style>
+  .tab { color: #6b6578; border-color: transparent; }
+  .tab.active-tab { color: #4a1e6e; border-color: #4a1e6e; }
+</style>
+</body>
+</html>

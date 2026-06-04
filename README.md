@@ -24,15 +24,24 @@ III.  Project Structure
 
 ```
 .
-├── index.html        # Public landing page — hero, live stats, marketplace preview, news, about, contact
-├── marketplace.html  # Full marketplace — login gate, categories, search, product cards → seller contact
-├── sell.html         # Seller listing form — 3-step wizard, mandatory photo upload, submit for approval
-├── news.html         # Makhanda Happening — news/blog feed with tag filter and article view
-├── profile.html      # User profile — details, profile photo, "My Listings" with status
-├── admin.html        # Admin panel — approvals, users, cabs, news, commission, settings
-├── login.html        # (legacy / standalone auth — superseded by in-page gate on marketplace)
-├── logo.svg          # Brand logo (scalable, transparent)
-├── favicon.svg       # Browser tab icon
+├── app.py             # Flask backend — serves pages + JSON API on :5000, SQLite-backed
+├── requirements.txt   # Python deps (Flask only — installs without a virtualenv)
+├── package.json       # Tailwind build scripts (build:css / watch:css)
+├── tailwind.config.js # Tailwind theme — plum design tokens, fonts, animations
+├── input.css          # Tailwind source (@tailwind + component layer)  →  static/tailwind.css
+├── index.html         # Landing page — hero, live stats, marketplace preview, news, contact
+├── marketplace.html   # Full marketplace — categories, search, sort, product → seller contact
+├── sell.html          # Seller listing form — 3-step wizard, photo upload → POST /api/listings
+├── news.html          # Makhanda Happening — news/blog feed with tag filter and article view
+├── profile.html       # User profile — editable details + "My Listings" with live status
+├── admin.html         # Admin panel — login gate, approve/reject listings, post news
+├── login.html         # Lightweight student sign-in (pilot session)
+├── logo.svg           # Brand wordmark (scalable)
+├── favicon.svg        # Browser tab / app icon
+├── static/
+│   ├── tailwind.css   # COMPILED Tailwind (committed — no build step needed to run)
+│   └── app.js         # Shared frontend runtime (API client, nav, toasts, auth, contact)
+├── data/              # SQLite database lives here (auto-created + seeded on first run)
 └── README.md
 ```
 
@@ -40,20 +49,26 @@ III.  Project Structure
 
  1.  Running Locally
 
-No build step, no dependencies to install. Either:
+The site is served by a small Flask backend (port **5000**). The compiled
+Tailwind CSS is committed, so **no Node build step is required just to run**.
 
-**Option A — open directly**
-Double-click `index.html`. (Some features like icon fonts need internet.)
-
-**Option B — run a local server (recommended)**
+**Run it (Google Cloud Shell or any Linux terminal — no virtualenv needed):**
 ```bash
-# Python 3
-python3 -m http.server 8000
-# then open http://localhost:8000
+pip install --user -r requirements.txt   # one-time: installs Flask
+python3 app.py                           # serves on 0.0.0.0:5000
 ```
+Then open the app:
+- **Cloud Shell:** click **Web Preview → Change port → 5000**.
+- **Local:** browse to <http://localhost:5000>.
+
+The SQLite database (`data/marketplace.db`) is created and seeded automatically
+on first run — submit an item on **/sell**, approve it in **/admin**, and watch
+it appear on **/marketplace**.
+
+**Rebuilding the CSS** (only if you change `input.css` or page markup):
 ```bash
-# Node
-npx serve
+npm install        # one-time: installs Tailwind
+npm run build:css  # → static/tailwind.css   (or: npm run watch:css)
 ```
 
 ---
@@ -73,12 +88,12 @@ Password: campus2025
 
 3.  Tech Stack
 
-- **HTML5 + semantic markup**
-- **Vanilla CSS** (custom design system, CSS variables, mobile-first)
-- **Vanilla JavaScript** (no framework)
+- **Backend** — **Flask** (Python 3) on port 5000, serving pages + a JSON API
+- **Database** — **SQLite** via the Python standard library (no external service)
+- **Styling** — **Tailwind CSS**, compiled from `input.css` with a custom plum design system (the landing & sell pages also keep their original hand-tuned CSS)
+- **Frontend** — **Vanilla JavaScript** (no framework); shared runtime in `static/app.js`
 - **Google Fonts** — Syne (display) + DM Sans (body)
-- **Lucide Icons** (CDN)
-- **Data layer** — `localStorage` (prototype) → migrating to **Supabase** (see Roadmap)
+- **API** — `GET/POST /api/listings`, `POST /api/listings/<id>/status`, `GET /api/stats`, `GET/POST /api/news`, `POST /api/admin/login`
 
 ---
 

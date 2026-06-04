@@ -1,0 +1,4 @@
+# Campus Marketplace · Makhanda — backend dependencies
+# Single dependency by design: fewer moving parts = more stable for the pilot.
+# Install (Cloud Shell, no virtualenv):  pip install --user -r requirements.txt
+Flask>=3.0,<4.0

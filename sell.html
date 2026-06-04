@@ -656,19 +656,41 @@ function submitListing() {
   hideFlash();
 
   const listing = collectData();
+  const submitBtn = document.getElementById('submitBtn');
+  submitBtn.disabled = true;
+  submitBtn.style.opacity = '0.6';
 
-  /* ── TODO (backend): POST /api/listings — replace localStorage below ──
-     fetch('/api/listings', {method:'POST', body:JSON.stringify(listing)})
-     ─────────────────────────────────────────────────────────────────── */
-  const existing = JSON.parse(localStorage.getItem('cm_products') || '[]');
-  existing.unshift(listing);
-  localStorage.setItem('cm_products', JSON.stringify(existing));
+  /* POST to the Flask backend — listing lands as "pending" for admin review */
+  fetch('/api/listings', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(listing)
+  })
+  .then(r => r.json().then(d => ({ ok: r.ok, d })))
+  .then(({ ok, d }) => {
+    if (!ok || !d || d.ok === false) throw new Error((d && d.error) || 'Submit failed');
+    /* Remember it locally so it shows under Profile → My Listings */
+    try {
+      const mine = JSON.parse(localStorage.getItem('cm_my_listings') || '[]');
+      mine.unshift({ id: d.id, title: listing.title, price: listing.price, category: listing.category, status: 'pending', submittedAt: new Date().toISOString() });
+      localStorage.setItem('cm_my_listings', JSON.stringify(mine));
+    } catch (_) {}
+    showSuccess();
+  })
+  .catch(err => {
+    submitBtn.disabled = false;
+    submitBtn.style.opacity = '';
+    showFlash('Could not submit your listing:', [err.message || 'Check your connection and try again.']);
+  });
+}
 
-  /* Hide form, show success */
+/* Hide form, reveal the success screen */
+function showSuccess(){
   [1,2,3].forEach(i => document.getElementById('step'+i).style.display='none');
   document.getElementById('stepsBar').style.display='none';
   document.getElementById('progFill').parentElement.style.display='none';
   document.getElementById('successScreen').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
 function resetForm() {

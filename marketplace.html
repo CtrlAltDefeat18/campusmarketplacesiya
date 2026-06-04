@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="description" content="Browse the Campus Marketplace — textbooks, electronics, appliances and more from Rhodes University students in Makhanda."/>
+<title>Marketplace · Campus Marketplace</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/static/tailwind.css"/>
+</head>
+<body class="pt-14">
+
+<!-- NAV -->
+<nav class="nav-shell">
+  <div class="container-cm flex items-center gap-3 h-14">
+    <a href="/" class="flex items-center gap-2 shrink-0">
+      <img src="/favicon.svg" class="h-8 w-8" alt=""/>
+      <span class="font-syne font-extrabold text-white text-sm tracking-tight">Campus<span class="text-violet-300">Marketplace</span></span>
+    </a>
+    <div class="ml-auto hidden md:flex items-center gap-1">
+      <a href="/" data-navlink class="nav-link">Home</a>
+      <a href="/marketplace" data-navlink class="nav-link">Marketplace</a>
+      <a href="/sell" data-navlink class="nav-link">Sell</a>
+      <a href="/news" data-navlink class="nav-link">News</a>
+      <a href="/profile" data-navlink class="nav-link">Profile</a>
+      <a href="/admin" class="nav-link ml-1 bg-violet-600 text-white hover:bg-violet-700 hover:text-white">Admin</a>
+    </div>
+    <button data-burger class="md:hidden ml-auto p-2 text-white/90" aria-label="Menu">
+      <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+  <div data-mobilemenu class="hidden md:hidden border-t border-white/10 bg-plum-deep/95">
+    <div class="container-cm py-2 flex flex-col">
+      <a href="/" class="nav-link py-3">🏠 Home</a>
+      <a href="/marketplace" class="nav-link py-3">🛒 Marketplace</a>
+      <a href="/sell" class="nav-link py-3">🏷️ Sell an Item</a>
+      <a href="/news" class="nav-link py-3">📰 News</a>
+      <a href="/profile" class="nav-link py-3">👤 Profile</a>
+      <a href="/admin" class="nav-link py-3">⚙️ Admin</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HEADER -->
+<header class="bg-hero-plum text-white">
+  <div class="container-cm py-10 sm:py-14">
+    <p class="text-[0.68rem] tracking-[0.28em] uppercase text-violet-300 font-medium mb-2">Browse Items</p>
+    <h1 class="font-syne text-3xl sm:text-5xl font-extrabold tracking-tight">Student Marketplace</h1>
+    <p class="text-white/60 mt-3 max-w-xl text-sm sm:text-base">Tap any item to contact the seller directly via WhatsApp, phone or Facebook. No middleman, no payment processing.</p>
+  </div>
+</header>
+
+<!-- CONTROLS + GRID -->
+<main class="container-cm py-8">
+  <!-- search + sort -->
+  <div class="flex flex-wrap items-center gap-3 mb-4">
+    <div class="flex-1 min-w-[200px] flex items-center gap-2 bg-white border-[1.5px] border-plum-rim rounded-xl px-3.5 py-2.5 focus-within:border-plum-mid focus-within:ring-4 focus-within:ring-plum/10 transition">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#6b6578" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="search" type="text" placeholder="Search listings…" autocomplete="off" class="flex-1 bg-transparent outline-none text-sm"/>
+    </div>
+    <select id="sort" class="rounded-xl border-[1.5px] border-plum-rim px-3.5 py-2.5 text-sm bg-white outline-none cursor-pointer focus:border-plum-mid">
+      <option value="newest">Newest first</option>
+      <option value="price-asc">Price: Low → High</option>
+      <option value="price-desc">Price: High → Low</option>
+    </select>
+  </div>
+
+  <!-- category chips -->
+  <div id="chips" class="flex gap-2 overflow-x-auto no-scrollbar pb-2 mb-6"></div>
+
+  <!-- grid -->
+  <div id="grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4"></div>
+
+  <!-- load more -->
+  <div class="text-center mt-8">
+    <button id="loadMore" class="btn-ghost hidden">Load more listings</button>
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer class="border-t border-plum-rim bg-white mt-8">
+  <div class="container-cm py-10 text-sm text-muted flex flex-col sm:flex-row gap-4 items-center justify-between">
+    <div>© <span data-year></span> Campus Marketplace · Makhanda 🇿🇦</div>
+    <div class="flex gap-4">
+      <a href="/" class="hover:text-plum">Home</a>
+      <a href="/sell" class="hover:text-plum">Sell</a>
+      <a href="/news" class="hover:text-plum">News</a>
+      <a href="/admin" class="hover:text-plum">Admin</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ITEM SHEET -->
+<div id="sheet" class="fixed inset-0 z-[300] hidden">
+  <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeSheet()"></div>
+  <div class="absolute inset-x-0 bottom-0 sm:inset-0 sm:m-auto sm:max-w-lg sm:h-fit bg-white rounded-t-3xl sm:rounded-3xl shadow-plumlg max-h-[92vh] overflow-y-auto animate-fade-up">
+    <div id="sheetBody" class="p-5 sm:p-6"></div>
+  </div>
+</div>
+
+<script src="/config.js" onerror="void 0"></script>
+<script src="/static/app.js"></script>
+<script>
+const { api, esc, money, qs, matchesCat, contactButtons, toast } = window.CM;
+let ALL = [], activeCat = "all", term = "", visible = 12;
+const PAGE = 12;
+const CATS = ["all","Books & Education","Digital","Appliances","Beauty & Care","Office & Stationery","Apparel","Transport","Food & Drink","Services"];
+const ICON = {all:"🏪","Books & Education":"📚",Digital:"💻",Appliances:"🔌","Beauty & Care":"💄","Office & Stationery":"✏️",Apparel:"👗",Transport:"🚲","Food & Drink":"🍔",Services:"🛠"};
+
+function renderChips() {
+  qs("#chips").innerHTML = CATS.map(c =>
+    `<button class="chip ${c===activeCat?'chip-active':''}" data-cat="${esc(c)}">${ICON[c]||''} ${c==='all'?'All':esc(c)}</button>`
+  ).join("");
+  qs("#chips").querySelectorAll(".chip").forEach(b =>
+    b.addEventListener("click", () => { activeCat = b.dataset.cat; visible = PAGE; renderChips(); renderGrid(); })
+  );
+}
+
+function filtered() {
+  let list = ALL.filter(p => matchesCat(p, activeCat));
+  if (term) list = list.filter(p =>
+    [p.title, p.desc, p.category, p.seller && p.seller.name].join(" ").toLowerCase().includes(term)
+  );
+  const s = qs("#sort").value;
+  if (s === "price-asc") list.sort((a,b)=>a.price-b.price);
+  if (s === "price-desc") list.sort((a,b)=>b.price-a.price);
+  return list;
+}
+
+function card(p) {
+  return `<button class="card card-hover text-left overflow-hidden" onclick="openSheet('${esc(p.id)}')">
+    <div class="relative aspect-square flex items-center justify-center text-5xl" style="background:${esc(p.bg)||'#f5f0fb'}">
+      ${p.imageUrl ? `<img src="${esc(p.imageUrl)}" alt="${esc(p.title)}" class="absolute inset-0 w-full h-full object-cover" loading="lazy"/>` : `<span>${esc(p.emoji||'📦')}</span>`}
+      <span class="badge absolute top-2 left-2 bg-white/90 backdrop-blur">${esc(p.category)}</span>
+      ${p.sold ? `<span class="absolute inset-0 grid place-items-center bg-white/60 backdrop-blur-sm font-syne font-extrabold text-red-600 tracking-widest uppercase text-sm">Sold</span>` : ``}
+    </div>
+    <div class="p-3">
+      <div class="font-semibold text-sm leading-snug line-clamp-2 min-h-[2.5em]">${esc(p.title)}</div>
+      <div class="font-syne font-extrabold text-plum mt-1">${money(p.price)}</div>
+      <div class="text-xs text-muted mt-0.5 truncate">${esc(p.condition||'')}${p.location?' · '+esc(p.location):''}</div>
+    </div>
+  </button>`;
+}
+
+function renderGrid() {
+  const list = filtered();
+  const grid = qs("#grid");
+  const show = list.slice(0, visible);
+  if (!show.length) {
+    grid.innerHTML = `<div class="col-span-full text-center py-20 text-muted">
+      <div class="text-5xl mb-3">🔍</div><p>No listings found.<br/>Try a different category or search.</p></div>`;
+  } else {
+    grid.innerHTML = show.map(card).join("");
+  }
+  qs("#loadMore").classList.toggle("hidden", list.length <= visible);
+}
+
+function openSheet(id) {
+  const p = ALL.find(x => x.id === id);
+  if (!p) return;
+  const s = p.seller || {};
+  const tags = [p.category, p.condition, p.location].filter(Boolean)
+    .map(t => `<span class="badge">${esc(t)}</span>`).join(" ");
+  qs("#sheetBody").innerHTML = `
+    <div class="flex justify-end -mt-1 -mr-1">
+      <button onclick="closeSheet()" class="text-muted hover:text-plum p-1" aria-label="Close">✕</button>
+    </div>
+    <div class="rounded-2xl overflow-hidden aspect-video flex items-center justify-center text-6xl mb-4" style="background:${esc(p.bg)||'#f5f0fb'}">
+      ${p.imageUrl ? `<img src="${esc(p.imageUrl)}" alt="${esc(p.title)}" class="w-full h-full object-cover"/>` : `<span>${esc(p.emoji||'📦')}</span>`}
+    </div>
+    <div class="font-syne font-extrabold text-2xl text-plum">${money(p.price)}</div>
+    <h2 class="font-syne text-xl font-bold mt-0.5">${esc(p.title)}</h2>
+    <div class="flex flex-wrap gap-1.5 mt-2">${tags}</div>
+    <p class="text-sm text-muted leading-relaxed mt-3">${esc(p.desc||'')}</p>
+    <div class="flex items-center gap-3 mt-4 pt-4 border-t border-plum-rim">
+      <div class="w-10 h-10 rounded-full bg-plum text-white grid place-items-center font-syne font-bold">${esc((s.name||'?')[0].toUpperCase())}</div>
+      <div><div class="font-semibold text-sm">${esc(s.name||'Seller')}</div>
+      <div class="text-xs text-muted">📍 ${esc(p.location||'Makhanda')}${s.faculty?' · '+esc(s.faculty):''}</div></div>
+    </div>
+    <div class="grid gap-2 mt-4">${contactButtons(p)}</div>
+    <p class="text-[0.7rem] text-muted text-center mt-3">Meet in a safe, public place. Campus Marketplace doesn't process payments.</p>`;
+  qs("#sheet").classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+function closeSheet() { qs("#sheet").classList.add("hidden"); document.body.style.overflow = ""; }
+window.openSheet = openSheet; window.closeSheet = closeSheet;
+
+qs("#search").addEventListener("input", e => { term = e.target.value.toLowerCase().trim(); visible = PAGE; renderGrid(); });
+qs("#sort").addEventListener("change", renderGrid);
+qs("#loadMore").addEventListener("click", () => { visible += PAGE; renderGrid(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeSheet(); });
+
+(async function init() {
+  renderChips();
+  qs("#grid").innerHTML = Array.from({length:8}).map(()=>`<div class="card animate-pulse h-64"></div>`).join("");
+  try {
+    ALL = await api.listings("approved");
+    if (!ALL.length) ALL = [];
+  } catch (e) {
+    toast("Couldn't reach the server — showing nothing.", "error");
+    ALL = [];
+  }
+  renderGrid();
+})();
+</script>
+</body>
+</html>

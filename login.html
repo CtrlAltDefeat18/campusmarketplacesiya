@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Sign In · Campus Marketplace</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/static/tailwind.css"/>
+</head>
+<body>
+<main class="min-h-screen grid lg:grid-cols-2">
+  <!-- brand side -->
+  <section class="hidden lg:flex flex-col justify-between bg-hero-plum text-white p-12 relative overflow-hidden">
+    <a href="/" class="flex items-center gap-2 relative z-10">
+      <img src="/favicon.svg" class="h-9 w-9" alt=""/>
+      <span class="font-syne font-extrabold text-lg">Campus<span class="text-violet-300">Marketplace</span></span>
+    </a>
+    <div class="relative z-10">
+      <h1 class="font-syne text-4xl font-extrabold leading-tight">Buy. Sell.<br/><em class="text-violet-300 not-italic">Connect.</em></h1>
+      <p class="text-white/60 mt-4 max-w-sm">The student marketplace built for Rhodes University &amp; Makhanda. Sign in to list items and track your sales.</p>
+    </div>
+    <div class="relative z-10 text-white/40 text-xs">Built in Makhanda. For Makhanda. 🇿🇦</div>
+    <div class="absolute -right-24 -bottom-24 w-96 h-96 rounded-full bg-violet-500/20 blur-3xl"></div>
+  </section>
+
+  <!-- form side -->
+  <section class="flex items-center justify-center p-6 sm:p-12">
+    <div class="w-full max-w-sm">
+      <a href="/" class="lg:hidden flex items-center gap-2 mb-8">
+        <img src="/favicon.svg" class="h-9 w-9" alt=""/>
+        <span class="font-syne font-extrabold text-plum text-lg">Campus Marketplace</span>
+      </a>
+      <h2 class="font-syne text-2xl font-extrabold">Welcome 👋</h2>
+      <p class="text-muted text-sm mt-1 mb-6">Sign in to your campus account. No password needed for the pilot — just your details.</p>
+
+      <form id="form" class="space-y-4">
+        <div><label class="label">Full Name</label><input id="name" class="input" placeholder="Amahle Ndlovu" autocomplete="name" required/></div>
+        <div><label class="label">Student Email</label><input id="email" type="email" class="input" placeholder="g21001234@campus.ru.ac.za" autocomplete="email" required/></div>
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="label">WhatsApp <span class="normal-case text-muted/70">(optional)</span></label><input id="whatsapp" class="input" placeholder="27821234567"/></div>
+          <div><label class="label">Faculty / Year</label><input id="faculty" class="input" placeholder="2nd Year · BCom"/></div>
+        </div>
+        <button class="btn-primary w-full mt-2">Continue</button>
+      </form>
+
+      <p class="text-center text-sm text-muted mt-6">
+        Are you an organiser? <a href="/admin" class="text-plum font-semibold hover:underline">Admin sign in →</a>
+      </p>
+    </div>
+  </section>
+</main>
+
+<script src="/static/app.js"></script>
+<script>
+const { qs, setUser, toast } = window.CM;
+function nextUrl() {
+  const n = new URLSearchParams(location.search).get("next");
+  return (n && n.startsWith("/")) ? n : "/profile";
+}
+qs("#form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const name = qs("#name").value.trim();
+  const email = qs("#email").value.trim();
+  if (!name || !email) { toast("Name and email are required.", "error"); return; }
+  setUser({ name, email, whatsapp: qs("#whatsapp").value.trim(), faculty: qs("#faculty").value.trim() });
+  toast("Signed in 🎉");
+  setTimeout(() => (location.href = nextUrl()), 500);
+});
+</script>
+</body>
+</html>

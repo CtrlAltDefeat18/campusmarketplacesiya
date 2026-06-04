@@ -32,7 +32,15 @@ npm-debug.log*
 dist/
 build/
 
+# Python backend
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Runtime database (SQLite is recreated + reseeded on first run)
+data/*.db
+
 # Misc
 *.zip
 *.bak
-git rm --cached config.js
