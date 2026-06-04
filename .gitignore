@@ -35,3 +35,4 @@ build/
 # Misc
 *.zip
 *.bak
+git rm --cached config.js
