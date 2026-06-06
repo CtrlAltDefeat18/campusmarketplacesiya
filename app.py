@@ -15,11 +15,15 @@ Run (no virtualenv needed):
 
 import json
 import os
+import re
+import secrets
 import sqlite3
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
-from flask import Flask, abort, g, jsonify, request, send_from_directory
+from flask import (Flask, abort, g, jsonify, redirect, request,
+                   send_from_directory, session)
+from werkzeug.security import check_password_hash, generate_password_hash
 
 # ── Paths & config ──────────────────────────────────────────────────────────
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -34,6 +38,19 @@ ADMIN_USER = os.environ.get("ADMIN_USER", "admin")
 ADMIN_PASS = os.environ.get("ADMIN_PASS", "campus2025")
 ADMIN_KEY = os.environ.get("ADMIN_KEY", "cm-makhanda-pilot-key")
 
+# ── User auth config ─────────────────────────────────────────────────────────
+# Session signing key. MUST be set via env in production (any long random string).
+SECRET_KEY = os.environ.get("SECRET_KEY", "dev-only-change-me-in-production")
+
+# Rhodes email gates: students  g##X####@campus.ru.ac.za ; staff  name@ru.ac.za
+STUDENT_EMAIL_RE = re.compile(r"^g\d{2}[a-z]\d{4}@campus\.ru\.ac\.za$", re.I)
+STAFF_EMAIL_RE = re.compile(r"^[a-z0-9][a-z0-9._-]*@ru\.ac\.za$", re.I)
+
+# Password policy + login lockout
+PW_MIN_LEN = 8
+MAX_ATTEMPTS = 3    # failed logins before lockout
+LOCK_MINUTES = 15   # how long the lockout lasts
+
 # Files we are willing to serve from the project root (by extension).
 SERVABLE_EXT = {
     ".html", ".svg", ".js", ".mjs", ".css", ".png", ".jpg", ".jpeg",
@@ -47,6 +64,7 @@ DENY_NAMES = {
 
 app = Flask(__name__, static_folder="static", static_url_path="/static")
 app.json.sort_keys = False  # preserve insertion order in responses
+app.secret_key = SECRET_KEY  # signs the session cookie
 
 
 # ── Database ────────────────────────────────────────────────────────────────
@@ -89,6 +107,24 @@ def init_db():
             id         TEXT PRIMARY KEY,
             data       TEXT NOT NULL,
             created_at TEXT NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS users (
+            id              TEXT PRIMARY KEY,
+            email           TEXT UNIQUE NOT NULL,
+            role            TEXT NOT NULL,                 -- 'student' | 'staff'
+            name            TEXT NOT NULL DEFAULT '',
+            pw_hash         TEXT NOT NULL,
+            verified        INTEGER NOT NULL DEFAULT 0,
+            bio             TEXT NOT NULL DEFAULT '',
+            photo_url       TEXT NOT NULL DEFAULT '',
+            phone           TEXT NOT NULL DEFAULT '',
+            phone_verified  INTEGER NOT NULL DEFAULT 0,
+            failed_attempts INTEGER NOT NULL DEFAULT 0,
+            locked_until    TEXT,
+            verify_token    TEXT,
+            reset_token     TEXT,
+            reset_expires   TEXT,
+            created_at      TEXT NOT NULL
         );
         """
     )
@@ -322,6 +358,176 @@ def api_admin_login():
     if body.get("username") == ADMIN_USER and body.get("password") == ADMIN_PASS:
         return jsonify(ok=True, key=ADMIN_KEY)
     return jsonify(ok=False, error="Invalid credentials"), 401
+
+
+# ── User auth: helpers ───────────────────────────────────────────────────────
+def classify_email(email):
+    """Return 'student' or 'staff' for a valid Rhodes address, else None."""
+    email = (email or "").strip().lower()
+    if STUDENT_EMAIL_RE.match(email):
+        return "student"
+    if STAFF_EMAIL_RE.match(email):
+        return "staff"
+    return None
+
+
+def password_problem(pw):
+    """Return a human-readable error if the password is too weak, else None."""
+    pw = pw or ""
+    if len(pw) < PW_MIN_LEN:
+        return f"Password must be at least {PW_MIN_LEN} characters."
+    if not re.search(r"\d", pw):
+        return "Password must contain at least one number."
+    if not re.search(r"[^A-Za-z0-9]", pw):
+        return "Password must contain at least one special character."
+    return None
+
+
+def public_user(row):
+    """User dict that is safe to send to the browser (no hash / tokens)."""
+    if not row:
+        return None
+    return {
+        "id": row["id"], "email": row["email"], "role": row["role"],
+        "name": row["name"], "verified": bool(row["verified"]),
+        "bio": row["bio"], "photo_url": row["photo_url"],
+        "phone": row["phone"], "phone_verified": bool(row["phone_verified"]),
+    }
+
+
+def find_user(email):
+    return get_db().execute(
+        "SELECT * FROM users WHERE email = ?", ((email or "").strip().lower(),)
+    ).fetchone()
+
+
+def current_user_row():
+    uid = session.get("uid")
+    if not uid:
+        return None
+    return get_db().execute("SELECT * FROM users WHERE id = ?", (uid,)).fetchone()
+
+
+def send_verification_email(email, token):
+    """Deliver the verification link. Real SMTP is wired in a later step;
+    for now we log it so the whole flow is testable end-to-end."""
+    link = f"/api/auth/verify?token={token}"
+    print(f"\n  [verify] {email} -> {link}\n", flush=True)
+    return link
+
+
+# ── User auth: endpoints ─────────────────────────────────────────────────────
+@app.post("/api/auth/register")
+def api_register():
+    body = request.get_json(silent=True) or {}
+    email = (body.get("email") or "").strip().lower()
+    name = (body.get("name") or "").strip()[:80]
+    pw = body.get("password") or ""
+
+    role = classify_email(email)
+    if not role:
+        return jsonify(ok=False, error=(
+            "Use your Rhodes email — students like g22a1234@campus.ru.ac.za, "
+            "staff like name@ru.ac.za.")), 400
+    perr = password_problem(pw)
+    if perr:
+        return jsonify(ok=False, error=perr), 400
+    if not name:
+        return jsonify(ok=False, error="Please enter your name."), 400
+    if find_user(email):
+        return jsonify(ok=False, error="That email is already registered. Try logging in."), 409
+
+    uid = "u" + secrets.token_hex(6)
+    token = secrets.token_urlsafe(24)
+    db = get_db()
+    db.execute(
+        """INSERT INTO users (id, email, role, name, pw_hash, verified,
+                              verify_token, created_at)
+           VALUES (?,?,?,?,?,0,?,?)""",
+        (uid, email, role, name, generate_password_hash(pw), token, now_iso()),
+    )
+    db.commit()
+    link = send_verification_email(email, token)
+    resp = {"ok": True, "role": role,
+            "message": "Account created. Check your Rhodes email to verify before logging in."}
+    if DEBUG:
+        resp["dev_verify_link"] = link  # convenience while testing only
+    return jsonify(resp), 201
+
+
+@app.get("/api/auth/verify")
+def api_verify():
+    token = request.args.get("token", "")
+    if not token:
+        abort(404)
+    db = get_db()
+    row = db.execute("SELECT * FROM users WHERE verify_token = ?", (token,)).fetchone()
+    if not row:
+        return redirect("/login?verified=bad")
+    db.execute("UPDATE users SET verified = 1, verify_token = NULL WHERE id = ?", (row["id"],))
+    db.commit()
+    return redirect("/login?verified=1")
+
+
+@app.post("/api/auth/login")
+def api_login():
+    body = request.get_json(silent=True) or {}
+    email = (body.get("email") or "").strip().lower()
+    pw = body.get("password") or ""
+    row = find_user(email)
+
+    GENERIC = "Invalid email or password."  # don't reveal which emails exist
+    if not row:
+        return jsonify(ok=False, error=GENERIC), 401
+
+    # Currently locked out?
+    if row["locked_until"]:
+        try:
+            lu = datetime.fromisoformat(row["locked_until"])
+            now = datetime.now(timezone.utc)
+            if lu > now:
+                mins = max(1, int((lu - now).total_seconds() // 60) + 1)
+                return jsonify(ok=False, error=f"Too many attempts. Try again in {mins} min."), 423
+        except ValueError:
+            pass
+
+    db = get_db()
+    if not check_password_hash(row["pw_hash"], pw):
+        attempts = row["failed_attempts"] + 1
+        if attempts >= MAX_ATTEMPTS:
+            lock = (datetime.now(timezone.utc) + timedelta(minutes=LOCK_MINUTES)
+                    ).isoformat(timespec="seconds")
+            db.execute("UPDATE users SET failed_attempts=?, locked_until=? WHERE id=?",
+                       (attempts, lock, row["id"]))
+            db.commit()
+            return jsonify(ok=False, error=f"Too many attempts. Locked for {LOCK_MINUTES} min."), 423
+        db.execute("UPDATE users SET failed_attempts=? WHERE id=?", (attempts, row["id"]))
+        db.commit()
+        left = MAX_ATTEMPTS - attempts
+        return jsonify(ok=False, error=f"{GENERIC} {left} attempt(s) left."), 401
+
+    if not row["verified"]:
+        return jsonify(ok=False, need_verify=True,
+                       error="Please verify your email first — check your inbox."), 403
+
+    # Success — reset counters and start the session.
+    db.execute("UPDATE users SET failed_attempts=0, locked_until=NULL WHERE id=?", (row["id"],))
+    db.commit()
+    session.clear()
+    session["uid"] = row["id"]
+    session.permanent = True
+    return jsonify(ok=True, user=public_user(row))
+
+
+@app.post("/api/auth/logout")
+def api_logout():
+    session.clear()
+    return jsonify(ok=True)
+
+
+@app.get("/api/auth/me")
+def api_me():
+    return jsonify(user=public_user(current_user_row()))
 
 
 # ── Page & asset serving ────────────────────────────────────────────────────
