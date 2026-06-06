@@ -89,8 +89,6 @@ input,select,textarea{font-family:inherit;}
 .tier-notice{display:flex;align-items:flex-start;gap:.75rem;padding:.85rem 1rem;border-radius:10px;background:var(--plum-wash);border:1px solid var(--plum-rim);margin-bottom:1.25rem;font-size:.78rem;color:var(--plum);line-height:1.5;}
 .tier-notice.amber{background:#fffbeb;border-color:#fde68a;color:#92400e;}
 
-/* IMGBB NOTE */
-.imgbb-note{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:9px;padding:.75rem;font-size:.75rem;color:#166534;line-height:1.6;margin-bottom:1rem;}
 
 /* BUTTONS */
 .btn-primary{background:linear-gradient(135deg,var(--plum),var(--plum-mid));color:#fff;border:none;border-radius:10px;padding:.8rem 1.75rem;font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;transition:opacity .2s,box-shadow .2s;cursor:pointer;}
@@ -157,18 +155,6 @@ input,select,textarea{font-family:inherit;}
     <p>Fill in the details below. Your listing will be reviewed by our team and published within 24 hours.</p>
   </div>
 
-  <!-- ImgBB notice -->
-  <div class="imgbb-note">
-    <strong>📸 Image hosting:</strong> Item photos are uploaded via ImgBB (free image host).
-    <!--
-      TO ENABLE IMAGE UPLOADS:
-      1. Go to imgbb.com → sign up free
-      2. Go to API → copy your API key
-      3. Paste it below where it says: const IMGBB_KEY = 'YOUR_KEY_HERE'
-      Until then, images are stored locally (small files only).
-    -->
-    Add your ImgBB API key in the JS section of this file to enable cloud image hosting.
-  </div>
 
   <!-- Flash banner -->
   <div class="flash" id="flashBanner"></div>
@@ -430,13 +416,15 @@ input,select,textarea{font-family:inherit;}
 <div class="toast" id="toast"></div>
 
 <script>
-/* ── ImgBB API Key ──────────────────────────────────────────
-   1. Sign up free at imgbb.com
-   2. Go to Account → API → copy key
-   3. Paste it here ↓
-   If empty, images are stored as base64 locally (small files only)
-   ─────────────────────────────────────────────────────── */
-const IMGBB_KEY = (window.CM_CONFIG && window.CM_CONFIG.imgbbKey) || '';  // set in config.js
+/* ── Cloudinary image hosting (config lives in config.js) ──────
+   Set up: see config.example.js. cloudName + an UNSIGNED upload
+   preset are safe to expose publicly (that's how Cloudinary works).
+   If config is missing, photos fall back to inline storage so the
+   form still works in dev. ─────────────────────────────────────── */
+const CLOUDINARY = {
+  cloudName: (window.CM_CONFIG && window.CM_CONFIG.cloudinaryCloud)  || '',
+  preset:    (window.CM_CONFIG && window.CM_CONFIG.cloudinaryPreset) || '',
+};
 
 let uploadedImages = [];   // [{base64, url, name}]
 let currentStep = 1;
@@ -532,18 +520,23 @@ async function handleImageUpload(input) {
       continue;
     }
     const b64 = await fileToBase64(file);
-    let finalUrl = b64; // fallback: use base64 directly
+    let finalUrl = b64; // fallback: inline image if Cloudinary not configured
 
-    if (IMGBB_KEY) {
-      /* Upload to ImgBB */
+    if (CLOUDINARY.cloudName && CLOUDINARY.preset) {
+      /* Upload to Cloudinary (unsigned preset) → returns a real CDN URL */
       try {
         const form = new FormData();
-        form.append('image', b64.split(',')[1]);
-        const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, {method:'POST',body:form});
+        form.append('file', file);
+        form.append('upload_preset', CLOUDINARY.preset);
+        const res = await fetch(
+          `https://api.cloudinary.com/v1_1/${CLOUDINARY.cloudName}/image/upload`,
+          { method: 'POST', body: form }
+        );
         const data = await res.json();
-        if (data.success) finalUrl = data.data.url;
-      } catch(e) {
-        console.warn('ImgBB upload failed, using base64', e);
+        if (data.secure_url) finalUrl = data.secure_url;
+        else console.warn('Cloudinary returned no URL, using inline image', data);
+      } catch (e) {
+        console.warn('Cloudinary upload failed, using inline image', e);
       }
     }
 
