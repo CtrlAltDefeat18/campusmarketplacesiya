@@ -17,13 +17,32 @@ import json
 import os
 import re
 import secrets
+import smtplib
 import sqlite3
+import ssl
 import time
 from datetime import datetime, timedelta, timezone
+from email.message import EmailMessage
 
 from flask import (Flask, abort, g, jsonify, redirect, request,
                    send_from_directory, session)
 from werkzeug.security import check_password_hash, generate_password_hash
+
+
+def _load_dotenv(path):
+    """Minimal .env loader (no dependency). KEY=value lines; existing env wins."""
+    if not os.path.isfile(path):
+        return
+    with open(path) as fh:
+        for line in fh:
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            k, _, v = line.partition("=")
+            os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
+
+
+_load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"))
 
 # ── Paths & config ──────────────────────────────────────────────────────────
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -50,6 +69,15 @@ STAFF_EMAIL_RE = re.compile(r"^[a-z0-9][a-z0-9._-]*@ru\.ac\.za$", re.I)
 PW_MIN_LEN = 8
 MAX_ATTEMPTS = 3    # failed logins before lockout
 LOCK_MINUTES = 15   # how long the lockout lasts
+
+# ── Email (Gmail SMTP) config — set these in a .env file (see .env.example) ───
+SMTP_HOST = os.environ.get("SMTP_HOST", "smtp.gmail.com")
+SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
+SMTP_USER = os.environ.get("SMTP_USER", "")          # your full Gmail address
+SMTP_PASS = os.environ.get("SMTP_PASS", "")          # the 16-char Gmail app password
+MAIL_FROM = os.environ.get("MAIL_FROM", SMTP_USER or "Campus Marketplace")
+APP_BASE_URL = os.environ.get("APP_BASE_URL", "").rstrip("/")  # optional override
+MAIL_ENABLED = bool(SMTP_USER and SMTP_PASS)
 
 # Files we are willing to serve from the project root (by extension).
 SERVABLE_EXT = {
@@ -408,11 +436,68 @@ def current_user_row():
     return get_db().execute("SELECT * FROM users WHERE id = ?", (uid,)).fetchone()
 
 
+def abs_url(path):
+    """Absolute URL for links inside emails. Uses APP_BASE_URL if set,
+    otherwise the host of the current request (works on Cloud Shell preview)."""
+    base = APP_BASE_URL or request.host_url.rstrip("/")
+    return base + path
+
+
+def send_email(to, subject, html_body, text_body=None):
+    """Send one email via SMTP. Returns True on success. Never raises —
+    on failure (or if mail isn't configured) it logs and returns False so
+    the calling flow keeps working."""
+    if not MAIL_ENABLED:
+        print(f"\n  [mail disabled] to={to} subject={subject!r}\n", flush=True)
+        return False
+    try:
+        msg = EmailMessage()
+        msg["Subject"] = subject
+        msg["From"] = MAIL_FROM
+        msg["To"] = to
+        msg.set_content(text_body or "Open this email in an HTML-capable client.")
+        msg.add_alternative(html_body, subtype="html")
+        ctx = ssl.create_default_context()
+        if SMTP_PORT == 465:
+            with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT, context=ctx, timeout=15) as s:
+                s.login(SMTP_USER, SMTP_PASS)
+                s.send_message(msg)
+        else:
+            with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=15) as s:
+                s.starttls(context=ctx)
+                s.login(SMTP_USER, SMTP_PASS)
+                s.send_message(msg)
+        return True
+    except Exception as exc:  # noqa: BLE001 — pilot: log and continue
+        print(f"\n  [mail ERROR] to={to}: {exc}\n", flush=True)
+        return False
+
+
+def _email_shell(title, intro, button_label, link):
+    """Shared branded HTML wrapper for our transactional emails."""
+    return f"""<div style="font-family:system-ui,-apple-system,Segoe UI,sans-serif;max-width:520px;margin:auto;padding:8px">
+      <h2 style="color:#6d28d9;margin:0 0 12px">{title}</h2>
+      <p style="color:#333;line-height:1.6">{intro}</p>
+      <p style="margin:22px 0">
+        <a href="{link}" style="display:inline-block;background:#6d28d9;color:#fff;
+           padding:12px 22px;border-radius:10px;text-decoration:none;font-weight:600">{button_label}</a>
+      </p>
+      <p style="color:#666;font-size:13px;line-height:1.5">Or paste this link into your browser:<br>
+        <span style="color:#6d28d9;word-break:break-all">{link}</span></p>
+      <p style="color:#999;font-size:12px;margin-top:20px">Campus Marketplace · Makhanda. If you didn't request this, you can ignore this email.</p>
+    </div>"""
+
+
 def send_verification_email(email, token):
-    """Deliver the verification link. Real SMTP is wired in a later step;
-    for now we log it so the whole flow is testable end-to-end."""
-    link = f"/api/auth/verify?token={token}"
-    print(f"\n  [verify] {email} -> {link}\n", flush=True)
+    link = abs_url(f"/api/auth/verify?token={token}")
+    html = _email_shell(
+        "Verify your Campus Marketplace account",
+        "Welcome aboard! Tap the button below to verify this email and activate your account.",
+        "Verify my email", link)
+    sent = send_email(email, "Verify your Campus Marketplace account", html,
+                      f"Verify your account: {link}")
+    if not sent:  # dev fallback so the flow stays testable without SMTP
+        print(f"\n  [verify] {email} -> {link}\n", flush=True)
     return link
 
 
@@ -450,8 +535,8 @@ def api_register():
     link = send_verification_email(email, token)
     resp = {"ok": True, "role": role,
             "message": "Account created. Check your Rhodes email to verify before logging in."}
-    if DEBUG:
-        resp["dev_verify_link"] = link  # convenience while testing only
+    if DEBUG or not MAIL_ENABLED:
+        resp["dev_verify_link"] = link  # only when email isn't actually being sent
     return jsonify(resp), 201
 
 
@@ -467,6 +552,25 @@ def api_verify():
     db.execute("UPDATE users SET verified = 1, verify_token = NULL WHERE id = ?", (row["id"],))
     db.commit()
     return redirect("/login?verified=1")
+
+
+@app.post("/api/auth/resend")
+def api_resend():
+    body = request.get_json(silent=True) or {}
+    email = (body.get("email") or "").strip().lower()
+    row = find_user(email)
+    # Always answer ok — never reveal which emails exist or are already verified.
+    if row and not row["verified"]:
+        token = secrets.token_urlsafe(24)
+        db = get_db()
+        db.execute("UPDATE users SET verify_token = ? WHERE id = ?", (token, row["id"]))
+        db.commit()
+        link = send_verification_email(email, token)
+        resp = {"ok": True}
+        if DEBUG or not MAIL_ENABLED:
+            resp["dev_verify_link"] = link
+        return jsonify(resp)
+    return jsonify(ok=True)
 
 
 @app.post("/api/auth/login")
