@@ -34,16 +34,40 @@
         <span class="font-syne font-extrabold text-plum text-lg">Campus Marketplace</span>
       </a>
       <h2 class="font-syne text-2xl font-extrabold">Welcome 👋</h2>
-      <p class="text-muted text-sm mt-1 mb-6">Sign in to your campus account. No password needed for the pilot — just your details.</p>
+      <p class="text-muted text-sm mt-1 mb-5">Sign in with your Rhodes account, or create one in under a minute.</p>
 
-      <form id="form" class="space-y-4">
-        <div><label class="label">Full Name</label><input id="name" class="input" placeholder="Amahle Ndlovu" autocomplete="name" required/></div>
-        <div><label class="label">Student Email</label><input id="email" type="email" class="input" placeholder="g21001234@campus.ru.ac.za" autocomplete="email" required/></div>
-        <div class="grid grid-cols-2 gap-3">
-          <div><label class="label">WhatsApp <span class="normal-case text-muted/70">(optional)</span></label><input id="whatsapp" class="input" placeholder="27821234567"/></div>
-          <div><label class="label">Faculty / Year</label><input id="faculty" class="input" placeholder="2nd Year · BCom"/></div>
+      <!-- tabs -->
+      <div class="flex gap-1 p-1 rounded-xl mb-5" style="background:#f5f0fb">
+        <button id="tabLogin" type="button" class="flex-1 py-2 rounded-lg text-sm font-semibold">Log in</button>
+        <button id="tabReg" type="button" class="flex-1 py-2 rounded-lg text-sm font-semibold">Sign up</button>
+      </div>
+
+      <!-- message banner -->
+      <div id="banner" class="hidden text-sm rounded-xl px-3 py-2 mb-4 leading-relaxed"></div>
+
+      <!-- LOGIN -->
+      <form id="loginForm" class="space-y-4">
+        <div><label class="label">Rhodes Email</label>
+          <input id="loginEmail" type="email" class="input" placeholder="g22a1234@campus.ru.ac.za" autocomplete="email" required/></div>
+        <div><label class="label">Password</label>
+          <input id="loginPw" type="password" class="input" placeholder="••••••••" autocomplete="current-password" required/></div>
+        <div class="text-right -mt-1">
+          <button type="button" id="forgotLink" class="text-xs text-plum font-semibold hover:underline">Forgot password?</button>
         </div>
-        <button class="btn-primary w-full mt-2">Continue</button>
+        <button class="btn-primary w-full">Log in</button>
+      </form>
+
+      <!-- REGISTER -->
+      <form id="regForm" class="space-y-4 hidden">
+        <div><label class="label">Full Name</label>
+          <input id="regName" class="input" placeholder="Amahle Ndlovu" autocomplete="name" required/></div>
+        <div><label class="label">Rhodes Email</label>
+          <input id="regEmail" type="email" class="input" placeholder="g22a1234@campus.ru.ac.za" autocomplete="email" required/>
+          <p class="text-[0.7rem] text-muted mt-1">Students: g##X####@campus.ru.ac.za · Staff: name@ru.ac.za</p></div>
+        <div><label class="label">Password</label>
+          <input id="regPw" type="password" class="input" placeholder="Create a password" autocomplete="new-password" required/>
+          <p class="text-[0.7rem] text-muted mt-1">At least 8 characters, with 1 number and 1 special character.</p></div>
+        <button class="btn-primary w-full">Create account</button>
       </form>
 
       <p class="text-center text-sm text-muted mt-6">
@@ -55,19 +79,95 @@
 
 <script src="/static/app.js"></script>
 <script>
-const { qs, setUser, toast } = window.CM;
+const { qs, api, toast, syncSession } = window.CM;
+
 function nextUrl() {
   const n = new URLSearchParams(location.search).get("next");
-  return (n && n.startsWith("/")) ? n : "/profile";
+  return (n && n.startsWith("/")) ? n : "/home";
 }
-qs("#form").addEventListener("submit", (e) => {
+function banner(msg, kind, node) {
+  const b = qs("#banner");
+  b.textContent = msg || "";
+  const styles = {
+    error:   ["#fef2f2", "#991b1b"],
+    success: ["#f0fdf4", "#166534"],
+    info:    ["#f5f0fb", "#5b21b6"],
+  };
+  const [bg, fg] = styles[kind] || styles.info;
+  b.style.background = bg; b.style.color = fg;
+  if (node) b.appendChild(node);
+  b.classList.remove("hidden");
+}
+
+// ── tab switching ──
+const tabLogin = qs("#tabLogin"), tabReg = qs("#tabReg");
+function show(which) {
+  const login = which === "login";
+  qs("#loginForm").classList.toggle("hidden", !login);
+  qs("#regForm").classList.toggle("hidden", login);
+  tabLogin.style.background = login ? "#fff" : "transparent";
+  tabReg.style.background = login ? "transparent" : "#fff";
+  tabLogin.classList.toggle("text-plum", login);
+  tabLogin.classList.toggle("text-muted", !login);
+  tabReg.classList.toggle("text-plum", !login);
+  tabReg.classList.toggle("text-muted", login);
+}
+tabLogin.addEventListener("click", () => show("login"));
+tabReg.addEventListener("click", () => show("register"));
+show(new URLSearchParams(location.search).get("tab") === "signup" ? "register" : "login");
+
+// ── verification result banner (from /api/auth/verify redirect) ──
+const v = new URLSearchParams(location.search).get("verified");
+if (v === "1") banner("Email verified — you can log in now. 🎉", "success");
+else if (v === "bad") banner("That verification link is invalid or already used.", "error");
+
+qs("#forgotLink").addEventListener("click", () =>
+  banner("Password reset is being set up — coming in the next update.", "info"));
+
+// ── login ──
+qs("#loginForm").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const name = qs("#name").value.trim();
-  const email = qs("#email").value.trim();
-  if (!name || !email) { toast("Name and email are required.", "error"); return; }
-  setUser({ name, email, whatsapp: qs("#whatsapp").value.trim(), faculty: qs("#faculty").value.trim() });
-  toast("Signed in 🎉");
-  setTimeout(() => (location.href = nextUrl()), 500);
+  const btn = e.target.querySelector("button");
+  btn.disabled = true; btn.textContent = "Logging in…";
+  try {
+    await api.login(qs("#loginEmail").value.trim(), qs("#loginPw").value);
+    await syncSession();
+    toast("Welcome back 🎉");
+    setTimeout(() => (location.href = nextUrl()), 400);
+  } catch (err) {
+    const extra = (err.data && err.data.need_verify) ? " Check your inbox for the verification link." : "";
+    banner((err.message || "Login failed.") + extra, "error");
+    btn.disabled = false; btn.textContent = "Log in";
+  }
+});
+
+// ── register ──
+qs("#regForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = e.target.querySelector("button");
+  const email = qs("#regEmail").value.trim();
+  btn.disabled = true; btn.textContent = "Creating…";
+  try {
+    const res = await api.register({
+      name: qs("#regName").value.trim(),
+      email,
+      password: qs("#regPw").value,
+    });
+    if (res.dev_verify_link) {
+      // DEV mode (FLASK_DEBUG=1): make verification one click for testing.
+      const a = document.createElement("a");
+      a.href = res.dev_verify_link; a.textContent = "Verify now →";
+      a.className = "underline font-semibold ml-1";
+      banner("Account created (dev mode).", "success", a);
+    } else {
+      banner("Account created! Check your Rhodes email for a verification link, then log in.", "success");
+      show("login"); qs("#loginEmail").value = email;
+    }
+    btn.disabled = false; btn.textContent = "Create account";
+  } catch (err) {
+    banner(err.message || "Could not create account.", "error");
+    btn.disabled = false; btn.textContent = "Create account";
+  }
 });
 </script>
 </body>
