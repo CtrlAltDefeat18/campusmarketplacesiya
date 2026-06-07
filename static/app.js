@@ -40,12 +40,35 @@
     suggestions: () => jfetch("/api/suggestions"),
     adminLogin: (username, password) =>
       jfetch("/api/admin/login", { method: "POST", body: JSON.stringify({ username, password }) }),
+    register: (payload) =>
+      jfetch("/api/auth/register", { method: "POST", body: JSON.stringify(payload) }),
+    login: (email, password) =>
+      jfetch("/api/auth/login", { method: "POST", body: JSON.stringify({ email, password }) }),
+    logoutServer: () => jfetch("/api/auth/logout", { method: "POST" }),
+    me: () => jfetch("/api/auth/me"),
   };
 
-  // ── auth (lightweight pilot session in localStorage) ──────────
+  // ── auth (real server session; localStorage is a UX mirror only) ──
+  // getUser() reads the mirror for instant/synchronous UI + pre-paint gating.
+  // The mirror is ONLY ever set by a real server login, and is reconciled
+  // against /api/auth/me by syncSession() on every page load.
   function getUser() { try { return JSON.parse(localStorage.getItem("cm_user") || "null"); } catch (_) { return null; } }
   function setUser(u) { localStorage.removeItem("cm_guest"); localStorage.setItem("cm_user", JSON.stringify(u)); }
-  function logout() { localStorage.removeItem("cm_user"); localStorage.removeItem("cm_guest"); }
+  function logout() {
+    try { api.logoutServer(); } catch (_) {}        // end the real server session (fire-and-forget)
+    localStorage.removeItem("cm_user");
+    localStorage.removeItem("cm_guest");
+  }
+  // Reconcile the local mirror with the server's real session (source of truth).
+  async function syncSession() {
+    try {
+      const res = await api.me();
+      const user = res && res.user;
+      if (user) localStorage.setItem("cm_user", JSON.stringify(user));
+      else if (localStorage.getItem("cm_user")) localStorage.removeItem("cm_user");
+      return user || null;
+    } catch (_) { return null; }
+  }
   function adminKey() { return localStorage.getItem("cm_admin_key") || ""; }
   function setAdminKey(k) { k ? localStorage.setItem("cm_admin_key", k) : localStorage.removeItem("cm_admin_key"); }
   function isAdmin() { return !!adminKey(); }
@@ -352,7 +375,8 @@
     });
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", async () => {
+    await syncSession();          // make the local mirror match the real server session
     if (qs("#cm-nav") || qs("#cm-footer")) mountChrome();
     initChrome();
     applyConfig();
@@ -365,7 +389,7 @@
   // ── public surface ────────────────────────────────────────────
   window.CM = {
     api, esc, money, qs, qsa, toast,
-    getUser, setUser, logout, isAdmin, adminKey, setAdminKey,
+    getUser, setUser, logout, syncSession, isAdmin, adminKey, setAdminKey,
     isGuest, setGuest, hasAccess, requireAccess,
     groupOf, matchesCat, contactButtons,
     mountChrome, navHTML, footerHTML, countUp,
