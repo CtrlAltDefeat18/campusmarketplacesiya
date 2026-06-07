@@ -486,10 +486,11 @@ function nextUrl() {
 // ── Enter modal ──
 let mode = "signup";
 function openEnter(which) {
-  mode = which || "signup";
-  switchTab(mode);
-  qs("#enter").classList.remove("hidden");
-  document.body.style.overflow = "hidden";
+  // Auth now lives on the real /login page — carry the tab + intended destination.
+  const next = new URLSearchParams(location.search).get("next");
+  let url = "/login?tab=" + (which === "login" ? "login" : "signup");
+  if (next && next.startsWith("/")) url += "&next=" + encodeURIComponent(next);
+  location.href = url;
 }
 function closeEnter() {
   qs("#enter").classList.add("hidden");
@@ -512,16 +513,9 @@ function browseGuest() {
 }
 window.openEnter = openEnter; window.closeEnter = closeEnter; window.switchTab = switchTab; window.browseGuest = browseGuest;
 
-qs("#enterForm").addEventListener("submit", (e) => {
-  e.preventDefault();
-  const email = qs("#eEmail").value.trim();
-  const name = qs("#eName").value.trim() || (email ? email.split("@")[0] : "");
-  if (!email) { toast("Please enter your student email.", "error"); return; }
-  if (mode === "signup" && !name) { toast("What should we call you?", "error"); return; }
-  setUser({ name, email, whatsapp: qs("#eWhats").value.trim(), faculty: qs("#eFaculty").value.trim() });
-  toast(mode === "signup" ? "Welcome aboard! 🎉" : "Welcome back 👋");
-  setTimeout(() => (location.href = nextUrl()), 600);
-});
+// The inline enter-modal form is retired; real auth lives on /login.
+const enterForm = qs("#enterForm");
+if (enterForm) enterForm.addEventListener("submit", (e) => { e.preventDefault(); openEnter("signup"); });
 
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeEnter(); });
 if (location.hash === "#enter") openEnter("signup");
