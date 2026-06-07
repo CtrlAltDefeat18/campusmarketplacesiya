@@ -135,8 +135,29 @@ qs("#loginForm").addEventListener("submit", async (e) => {
     toast("Welcome back 🎉");
     setTimeout(() => (location.href = nextUrl()), 400);
   } catch (err) {
-    const extra = (err.data && err.data.need_verify) ? " Check your inbox for the verification link." : "";
-    banner((err.message || "Login failed.") + extra, "error");
+    if (err.data && err.data.need_verify) {
+      const email = qs("#loginEmail").value.trim();
+      const a = document.createElement("a");
+      a.href = "#"; a.textContent = "Resend verification email";
+      a.className = "underline font-semibold ml-1";
+      a.addEventListener("click", async (ev) => {
+        ev.preventDefault();
+        try {
+          const r = await api.resend(email);
+          if (r.dev_verify_link) {
+            const link = document.createElement("a");
+            link.href = r.dev_verify_link; link.textContent = "Verify now →";
+            link.className = "underline font-semibold ml-1";
+            banner("Verification re-sent (dev mode).", "success", link);
+          } else {
+            banner("Verification email re-sent — check your inbox.", "success");
+          }
+        } catch (_) { banner("Couldn't resend right now — try again shortly.", "error"); }
+      });
+      banner(err.message || "Please verify your email first.", "error", a);
+    } else {
+      banner(err.message || "Login failed.", "error");
+    }
     btn.disabled = false; btn.textContent = "Log in";
   }
 });
