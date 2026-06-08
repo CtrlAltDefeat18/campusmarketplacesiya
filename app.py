@@ -467,6 +467,7 @@ def send_email(to, subject, html_body, text_body=None):
                 s.starttls(context=ctx)
                 s.login(SMTP_USER, SMTP_PASS)
                 s.send_message(msg)
+        print(f"\n  [mail SENT] to={to} subject={subject!r}\n", flush=True)
         return True
     except Exception as exc:  # noqa: BLE001 — pilot: log and continue
         print(f"\n  [mail ERROR] to={to}: {exc}\n", flush=True)
